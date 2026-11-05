@@ -1,0 +1,2671 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026 OverDrive Wildcard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Ensure crisp color flag rendering across Windows/macOS/Linux */
+    @font-face {
+      font-family: "FlagEmoji";
+      unicode-range: U+1F1E6-1F1FF;
+      src: local("Apple Color Emoji"), local("Segoe UI Emoji"), local("Noto Color Emoji"),
+           url("https://cdn.jsdelivr.net/npm/@svgmoji/noto@2.0.0/fonts/NotoColorEmoji.ttf");
+    }
+
+    :root,
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --card-subtle: #f8fafc;
+      --border: #e2e8f0;
+      --header-title: #0f172a;
+      --text: #0f172a;
+      --muted: #64748b;
+      --lines: #cbd5e1;
+
+      /* Badges & Accents */
+      --lb-bg: #fef3e1;
+      --lb-text: #9a6100;
+      --elim-bg: #fef0f0;
+      --elim-text: #ef4444;
+
+      --qual-border: #10b981;
+      --qual-tint: #f0fdf4;
+      --qual-badge-bg: #059669;
+      --qual-badge-text: #ffffff;
+      --qual-subtext: #059669;
+
+      --pill-ub-bg: #d1fae5;
+      --pill-ub-text: #047857;
+
+      --qualifier-border: #f59e0b;
+      --qualifier-header-bg: #fef3c7;
+      --qualifier-badge-bg: #d97706;
+      --qualifier-badge-text: #ffffff;
+
+      --status-done-bg: #d1fae5;
+      --status-done-text: #059669;
+      --status-upcoming-bg: #f1f5f9;
+      --status-upcoming-text: #64748b;
+      --status-live-bg: #fee2e2;
+      --status-live-text: #ef4444;
+
+      --win-cell-bg: #dcfce7;
+      --win-cell-text: #059669;
+      --loss-pill-bg: #fee2e2;
+      --loss-pill-text: #ef4444;
+
+      --seed-bg: #f1f5f9;
+      --seed-border: #e2e8f0;
+      --seed-text: #475569;
+
+      --tab-active-bg: #0f172a;
+      --tab-active-text: #ffffff;
+
+      --subtitle-pill-bg: #ecfdf5;
+      --subtitle-pill-border: #a7f3d0;
+      --subtitle-pill-text: #059669;
+
+      --trace-blue: #3b82f6;
+      --trace-blue-tint: rgba(59, 130, 246, 0.08);
+      --trace-red: #ef4444;
+      --trace-red-tint: rgba(239, 68, 68, 0.08);
+
+      --popover-bg: #ffffff;
+      --popover-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.14), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+      --row-hover: #f8fafc;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-subtle: #162032;
+      --border: #334155;
+      --header-title: #ffffff;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --lines: #475569;
+
+      /* Badges & Accents */
+      --lb-bg: #453e32;
+      --lb-text: #fbbf24;
+      --elim-bg: #3e2d3c;
+      --elim-text: #ef4444;
+
+      --qual-border: #10b981;
+      --qual-tint: rgba(16, 185, 129, 0.09);
+      --qual-badge-bg: #059669;
+      --qual-badge-text: #ffffff;
+      --qual-subtext: #34d399;
+
+      --pill-ub-bg: rgba(16, 185, 129, 0.16);
+      --pill-ub-text: #34d399;
+
+      --qualifier-border: #f59e0b;
+      --qualifier-header-bg: #4d4330;
+      --qualifier-badge-bg: #d97706;
+      --qualifier-badge-text: #ffffff;
+
+      --status-done-bg: rgba(16, 185, 129, 0.16);
+      --status-done-text: #34d399;
+      --status-upcoming-bg: rgba(148, 163, 184, 0.14);
+      --status-upcoming-text: #94a3b8;
+      --status-live-bg: rgba(239, 68, 68, 0.2);
+      --status-live-text: #f87171;
+
+      --win-cell-bg: rgba(16, 185, 129, 0.18);
+      --win-cell-text: #34d399;
+      --loss-pill-bg: rgba(239, 68, 68, 0.2);
+      --loss-pill-text: #f87171;
+
+      --seed-bg: #0f172a;
+      --seed-border: #334155;
+      --seed-text: #94a3b8;
+
+      --tab-active-bg: #334155;
+      --tab-active-text: #ffffff;
+
+      --subtitle-pill-bg: rgba(16, 185, 129, 0.12);
+      --subtitle-pill-border: rgba(16, 185, 129, 0.35);
+      --subtitle-pill-text: #34d399;
+
+      --trace-blue: #3b82f6;
+      --trace-blue-tint: rgba(59, 130, 246, 0.16);
+      --trace-red: #ef4444;
+      --trace-red-tint: rgba(239, 68, 68, 0.16);
+
+      --popover-bg: #1e293b;
+      --popover-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.5), 0 6px 12px -4px rgba(0, 0, 0, 0.35);
+      --row-hover: rgba(255, 255, 255, 0.025);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: "Inter", "FlagEmoji", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 13px;
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.2s ease, color 0.2s ease;
+      padding-bottom: 64px;
+    }
+
+    .app-container {
+      width: 80%;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding-top: 24px;
+    }
+
+    /* ============================================================
+       GLOBAL HEADER
+       ============================================================ */
+    .global-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .tournament-title {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--header-title);
+    }
+
+    .subtitle-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: var(--subtitle-pill-bg);
+      border: 1px solid var(--subtitle-pill-border);
+      color: var(--subtitle-pill-text);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tab-switcher {
+      display: inline-flex;
+      align-items: center;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+    }
+
+    .tab-btn.active {
+      background: var(--tab-active-bg);
+      color: var(--tab-active-text);
+    }
+
+    .tab-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2;
+    }
+
+    .theme-toggle {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--muted);
+    }
+
+    .theme-toggle svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ============================================================
+       TOP QUALIFICATION BANNER
+       ============================================================ */
+    .top-banner {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px 16px;
+      margin-bottom: 20px;
+    }
+
+    .top-banner.hidden {
+      display: none;
+    }
+
+    .banner-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .banner-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--qual-subtext);
+    }
+
+    .banner-subtitle {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .qual-slots-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .qual-slot-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-radius: 8px;
+      min-height: 60px;
+    }
+
+    .qual-slot-card.qualified {
+      background: var(--qual-tint);
+      border: 1px solid var(--qual-border);
+    }
+
+    .qual-slot-card.pending {
+      background: var(--card-subtle);
+      border: 1px dashed var(--lines);
+    }
+
+    .qual-slot-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .qual-team-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .qual-slot-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--qual-subtext);
+    }
+
+    .qual-slot-card.pending .qual-slot-label-top {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .qual-slot-card.pending .qual-slot-sub {
+      font-size: 11px;
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    .badge-qualified-solid {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--qual-badge-bg);
+      color: var(--qual-badge-text);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 5px;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    .badge-pending-dashed {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px dashed var(--lines);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 5px;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    /* Seed Pill */
+    .seed-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      min-width: 28px;
+      height: 18px;
+      padding: 0;
+      border-radius: 4px;
+      background: var(--seed-bg);
+      border: 1px solid var(--seed-border);
+      color: var(--seed-text);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .qual-slot-card.qualified .seed-pill {
+      background: rgba(16, 185, 129, 0.14);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: var(--qual-subtext);
+    }
+
+    /* ============================================================
+       TAB VIEWS
+       ============================================================ */
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    /* ============================================================
+       TAB A: BRACKET VIEW
+       ============================================================ */
+    .bracket-section {
+      margin-bottom: 36px;
+    }
+
+    .bracket-section-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .bracket-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bracket-stage-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .bracket-stage-pill.upper {
+      background: var(--pill-ub-bg);
+      color: var(--pill-ub-text);
+    }
+
+    .bracket-stage-pill.lower {
+      background: var(--lb-bg);
+      color: var(--lb-text);
+    }
+
+    .bracket-progression-text {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .bracket-hint-text {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .bracket-scroll-wrap {
+      width: 100%;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .bracket-canvas {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      gap: 56px;
+      min-width: 780px;
+      margin: 0 auto;
+    }
+
+    .bracket-svg-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: visible;
+    }
+
+    .bracket-column {
+      display: flex;
+      flex-direction: column;
+      z-index: 2;
+      width: 224px;
+      flex-shrink: 0;
+    }
+
+    .bracket-column.qualifier-col {
+      width: 305px;
+    }
+
+    .bracket-col-header {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+      height: 18px;
+    }
+
+    .bracket-col-header.qualifier-header {
+      color: var(--qual-subtext);
+    }
+
+    .bracket-col-matches {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      flex: 1;
+      gap: 14px;
+    }
+
+    /* Match Card */
+    .match-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.12s ease, box-shadow 0.12s ease;
+      position: relative;
+      width: 100%;
+    }
+
+    .match-card.qualifier-card {
+      border-color: var(--qualifier-border);
+    }
+
+    .match-card.trace-team1 {
+      border-color: var(--trace-blue) !important;
+      box-shadow: 0 0 0 1px var(--trace-blue), 0 4px 12px rgba(59, 130, 246, 0.18);
+    }
+
+    .match-card.trace-team2 {
+      border-color: var(--trace-red) !important;
+      box-shadow: 0 0 0 1px var(--trace-red), 0 4px 12px rgba(239, 68, 68, 0.18);
+    }
+
+    .match-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 8px;
+      background: var(--card-subtle);
+      border-bottom: 1px solid var(--border);
+      font-size: 10px;
+      height: 26px;
+      gap: 4px;
+    }
+
+    .match-card.qualifier-card .match-card-header {
+      background: var(--qualifier-header-bg);
+      border-bottom-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .mc-header-left {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .mc-bracket-id {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 10px;
+      white-space: nowrap;
+    }
+
+    .mc-qualifier-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      background: var(--qualifier-badge-bg);
+      color: var(--qualifier-badge-text);
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 3px;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .mc-time {
+      color: var(--muted);
+      font-size: 9.5px;
+      white-space: nowrap;
+    }
+
+    .mc-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .mc-status-badge.completed {
+      background: var(--status-done-bg);
+      color: var(--status-done-text);
+    }
+
+    .mc-status-badge.upcoming {
+      background: var(--status-upcoming-bg);
+      color: var(--status-upcoming-text);
+    }
+
+    .mc-status-badge.live {
+      background: var(--status-live-bg);
+      color: var(--status-live-text);
+    }
+
+    .mc-team-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 9px;
+      height: 31px;
+      font-size: 12px;
+      transition: background-color 0.12s ease;
+    }
+
+    .mc-team-row.slot-1 {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .mc-team-row.active-hover-t1 {
+      background: var(--trace-blue-tint);
+      border-left: 4px solid var(--trace-blue);
+      padding-left: 5px; /* Offset the 4px border so team names stay aligned */
+    }
+
+    .mc-team-row.active-hover-t2 {
+      background: var(--trace-red-tint);
+      border-left: 4px solid var(--trace-red);
+      padding-left: 5px;
+    }
+
+    .mc-team-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .mc-team-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .mc-team-row.winner .mc-team-name {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .mc-score {
+      font-family: "Inter", sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+
+    .mc-team-row.winner .mc-score {
+      color: var(--qual-subtext);
+      font-weight: 700;
+    }
+
+    /* ============================================================
+       TAB B: MATCH LIST
+       ============================================================ */
+    .match-list-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .filter-pills {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .filter-pill {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .filter-pill:hover {
+      color: var(--text);
+      border-color: var(--muted);
+    }
+
+    .filter-pill.active {
+      background: var(--tab-active-bg);
+      border-color: var(--tab-active-bg);
+      color: var(--tab-active-text);
+    }
+
+    .search-box {
+      position: relative;
+      width: 240px;
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px 6px 30px;
+      font-family: inherit;
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .search-input::placeholder {
+      color: var(--muted);
+    }
+
+    .search-input:focus {
+      border-color: var(--trace-blue);
+    }
+
+    .match-table-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .match-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .match-table thead th {
+      background: var(--card-subtle);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: left;
+    }
+
+    .match-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background-color 0.1s ease;
+    }
+
+    .match-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .match-table tbody tr:hover {
+      background: var(--row-hover);
+    }
+
+    .match-table td {
+      padding: 10px 14px;
+      font-size: 12px;
+      vertical-align: middle;
+    }
+
+    .col-id {
+      width: 100px;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 400;
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+
+    .col-bracket {
+      width: 185px;
+    }
+
+    .col-sched {
+      width: 150px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .col-team1 {
+      text-align: right !important;
+      padding-right: 16px !important;
+    }
+
+    .col-s1,
+    .col-s2 {
+      width: 44px;
+      text-align: center !important;
+      font-weight: 600;
+      color: var(--muted);
+      padding: 10px 4px !important;
+    }
+
+    .col-vs {
+      width: 26px;
+      text-align: center !important;
+      color: var(--muted);
+      padding: 10px 0 !important;
+    }
+
+    .col-team2 {
+      text-align: left !important;
+      padding-left: 16px !important;
+    }
+
+    .col-status {
+      width: 120px;
+      text-align: right !important;
+    }
+
+    .col-s1.win-score,
+    .col-s2.win-score {
+      background: var(--win-cell-bg);
+      color: var(--win-cell-text);
+      font-weight: 700;
+    }
+
+    .table-team-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .table-team-name {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .table-team-name.winner {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .bracket-round-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .bracket-round-pill.upper {
+      background: var(--pill-ub-bg);
+      color: var(--pill-ub-text);
+    }
+
+    .bracket-round-pill.lower {
+      background: var(--lb-bg);
+      color: var(--lb-text);
+    }
+
+    .bracket-round-pill.qualifier {
+      background: var(--qualifier-header-bg);
+      border: 1px solid var(--qualifier-border);
+      color: var(--pill-ub-text);
+    }
+
+    /* ============================================================
+       TAB C: ROSTERS & STANDINGS
+       ============================================================ */
+    .rosters-section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .rosters-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--header-title);
+      letter-spacing: -0.015em;
+    }
+
+    .rosters-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .rosters-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .team-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 0.12s ease, border-color 0.12s ease;
+      cursor: pointer;
+    }
+
+    .team-card.qualified {
+      border-color: var(--qual-border);
+      background: var(--qual-tint);
+    }
+
+    .team-card-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .team-card-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .team-standing-badge {
+      display: inline-flex;
+      align-items: center;
+      align-self: flex-start;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .team-standing-badge.qualified {
+      background: var(--qual-badge-bg);
+      color: var(--qual-badge-text);
+    }
+
+    .team-standing-badge.lower {
+      background: var(--lb-bg);
+      color: var(--lb-text);
+    }
+
+    .team-standing-badge.eliminated {
+      background: var(--elim-bg);
+      color: var(--elim-text);
+    }
+
+    .roster-box {
+      background: var(--card-subtle);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 9px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .team-card.qualified .roster-box {
+      background: var(--card-bg);
+    }
+
+    .roster-line {
+      font-size: 12px;
+      line-height: 1.45;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .roster-label {
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .roster-players {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .roster-subs {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    /* ============================================================
+       FLOATING HOVER POPOVERS (MATCH & JOURNEY)
+       ============================================================ */
+    .floating-popover {
+      position: fixed;
+      z-index: 9999;
+      background: var(--popover-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--popover-shadow);
+      padding: 12px 14px;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.1s ease;
+      min-width: 245px;
+      max-width: 320px;
+    }
+
+    .floating-popover.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .popover-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .popover-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .popover-meta {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .popover-team-block {
+      padding: 4px 0;
+    }
+
+    .popover-team-block + .popover-team-block {
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    .popover-team-name {
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .popover-team-name.team1 {
+      color: var(--trace-blue);
+    }
+
+    .popover-team-name.team2 {
+      color: var(--trace-red);
+    }
+
+    .popover-roster-line {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Journey Popover list */
+    .journey-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .journey-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 11.5px;
+    }
+
+    .journey-left {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .journey-bracket-id {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .journey-opp {
+      color: var(--muted);
+    }
+
+    .journey-result-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .journey-result-pill.win {
+      background: var(--win-cell-bg);
+      color: var(--win-cell-text);
+    }
+
+    .journey-result-pill.loss {
+      background: var(--loss-pill-bg);
+      color: var(--loss-pill-text);
+    }
+
+    @media (max-width: 1280px) {
+      .app-container {
+        width: 92%;
+      }
+      .qual-slots-grid,
+      .rosters-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .app-container {
+        width: 96%;
+      }
+      .qual-slots-grid,
+      .rosters-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ============================================================
+       TEAM LOGOS: CRISP SIZING & DUAL-THEME CONTRAST
+       ============================================================ */
+    .team-logo {
+      width: 21px;
+      height: 21px;
+      object-fit: contain;
+      flex-shrink: 0;
+      vertical-align: middle;
+      border-radius: 2px;
+      opacity: 0.92;
+      transition: filter 0.2s ease, opacity 0.2s ease, transform 0.15s ease;
+    }
+
+    /* Prominent sizing in Top Banner & Rosters cards */
+    .qual-team-row .team-logo,
+    .team-card-top .team-logo {
+      width: 26px;
+      height: 26px;
+      border-radius: 3px;
+    }
+
+    /* LIGHT MODE:
+       - Pure invert(1) preserves all internal lines, cuts, and gray tones.
+       - contrast(1.15) gives fine lines extra punch against the white background.
+    */
+    [data-theme="light"] .team-logo {
+      filter: invert(1) contrast(1.15);
+    }
+
+    /* DARK MODE:
+       - Preserves the original white artwork and shading.
+       - A tiny contrast boost keeps fine details crisp against dark cards.
+    */
+    [data-theme="dark"] .team-logo {
+      filter: contrast(1.05);
+    }
+
+    /* ============================================================
+       INTERACTION POLISH: HOVER & DIMMING
+       ============================================================ */
+    /* Hover: Bring the logo to 100% opacity with a subtle 1.1x pop */
+    .match-card:hover .team-logo,
+    .mc-team-row:hover .team-logo,
+    .match-table tbody tr:hover .team-logo,
+    .team-card:hover .team-logo {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    /* Ancestor Lineage: Fully highlight logos on matches along the traced path */
+    .match-card.trace-team1 .team-logo,
+    .match-card.trace-team2 .team-logo {
+      opacity: 1;
+    }
+
+    /* Rosters Tab: Softly dim logos of eliminated teams */
+    .team-card.eliminated .team-logo {
+      opacity: 0.35;
+    }
+
+    .flag-icon {
+      font-size: 15px;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: -1px; /* Optical baseline alignment with text */
+    }
+
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- GLOBAL HEADER -->
+    <header class="global-header">
+      <div class="header-left">
+        <h1 class="tournament-title">2026 OverDrive Wildcard</h1>
+        <span class="subtitle-pill">🏆 Top 4 Qualify to OverDrive Major</span>
+      </div>
+
+      <div class="header-right">
+        <nav class="tab-switcher" role="tablist" aria-label="Dashboard Views">
+          <button class="tab-btn active" data-tab="bracket" role="tab" aria-selected="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="6" cy="6" r="3"></circle>
+              <circle cx="6" cy="18" r="3"></circle>
+              <path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"></path>
+            </svg>
+            <span>Bracket View</span>
+          </button>
+          <button class="tab-btn" data-tab="matches" role="tab" aria-selected="false">
+            <span id="matchListTabLabel">Match List (26)</span>
+          </button>
+          <button class="tab-btn" data-tab="rosters" role="tab" aria-selected="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Rosters & Standings</span>
+          </button>
+        </nav>
+
+        <button class="theme-toggle" id="themeToggleBtn" title="Toggle Light/Dark Mode" aria-label="Toggle Theme">
+          <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg id="themeIconSun" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- TOP BANNER (Visible on Tab A & Tab C) -->
+    <section class="top-banner" id="topQualBanner">
+      <div class="banner-header">
+        <div class="banner-title">🎉 QUALIFIED TO OVERDRIVE MAJOR</div>
+        <div class="banner-subtitle">Top 4 Final Standings</div>
+      </div>
+      <div class="qual-slots-grid" id="qualSlotsContainer"></div>
+    </section>
+
+    <!-- TAB A: BRACKET VIEW -->
+    <main id="tab-bracket" class="tab-pane active">
+      <!-- Upper Bracket -->
+      <div class="bracket-section">
+        <div class="bracket-section-bar">
+          <div class="bracket-bar-left">
+            <span class="bracket-stage-pill upper">UPPER BRACKET</span>
+            <span class="bracket-progression-text">Round 1 (8 Matches) → Round 2 (Quarters) → Round 3 (Upper Qualifiers)</span>
+          </div>
+          <span class="bracket-hint-text">Hover match card to trace team lineages</span>
+        </div>
+        <div class="bracket-scroll-wrap">
+          <div class="bracket-canvas" id="upperBracketCanvas">
+            <svg class="bracket-svg-layer" id="upperBracketSvg"></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lower Bracket -->
+      <div class="bracket-section">
+        <div class="bracket-section-bar">
+          <div class="bracket-bar-left">
+            <span class="bracket-stage-pill lower">LOWER BRACKET</span>
+            <span class="bracket-progression-text">Round 2 (4 Matches) → Round 3 (4 Matches) → Round 4 (2 Matches) → Round 5 (Lower Qualifiers)</span>
+          </div>
+          <span class="bracket-hint-text">Hover match card to trace team lineages</span>
+        </div>
+        <div class="bracket-scroll-wrap">
+          <div class="bracket-canvas" id="lowerBracketCanvas">
+            <svg class="bracket-svg-layer" id="lowerBracketSvg"></svg>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB B: MATCH LIST -->
+    <section id="tab-matches" class="tab-pane">
+      <div class="match-list-controls">
+        <div class="filter-pills" id="matchFilterPills">
+          <button class="filter-pill active" data-filter="all">All Active (26)</button>
+          <button class="filter-pill" data-filter="live">LIVE</button>
+          <button class="filter-pill" data-filter="upcoming">Upcoming</button>
+          <button class="filter-pill" data-filter="completed">Completed</button>
+          <button class="filter-pill" data-filter="upper">Upper Bracket</button>
+          <button class="filter-pill" data-filter="lower">Lower Bracket</button>
+        </div>
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" class="search-input" id="matchSearchInput" placeholder="Search team, player, ID..." />
+        </div>
+      </div>
+
+      <div class="match-table-card">
+        <table class="match-table">
+          <thead>
+            <tr>
+              <th class="col-id">MATCH ID</th>
+              <th class="col-bracket">ROUND / BRACKET</th>
+              <th class="col-sched">SCHEDULED</th>
+              <th class="col-team1">TEAM 1</th>
+              <th class="col-s1">S1</th>
+              <th class="col-vs">VS</th>
+              <th class="col-s2">S2</th>
+              <th class="col-team2">TEAM 2</th>
+              <th class="col-status">STATUS</th>
+            </tr>
+          </thead>
+          <tbody id="matchTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB C: ROSTERS & STANDINGS -->
+    <section id="tab-rosters" class="tab-pane">
+      <div class="rosters-section-header">
+        <h2 class="rosters-title">Rosters & Standings</h2>
+        <span class="rosters-subtitle">Hover any card to inspect tournament journey</span>
+      </div>
+      <div class="rosters-grid" id="rostersGrid"></div>
+    </section>
+  </div>
+
+  <!-- FLOATING POPOVER -->
+  <div class="floating-popover" id="floatingPopover"></div>
+
+  <script>
+    /* ============================================================
+       1. CONFIGURATION & ZERO-BACKEND SHEET INTEGRATION
+       ============================================================ */
+    const CONFIG = {
+      csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD2Um71alwYDoejxYV15ud9NZLq8E0re8efnSUDkw5M-HN_ApEd9KOmVhuiwEm0bzPdmdQbeHw0NgC/pub?gid=0&single=true&output=csv",
+      refreshIntervalMs: 20000
+    };
+
+    const QUALIFIER_BRACKET_IDS = new Set(["R3_UB1", "R3_UB2", "R5_LB1", "R5_LB2"]);
+
+    const COUNTRY_TO_FLAG = {
+      CH: "🇨🇭", CHE: "🇨🇭", SUI: "🇨🇭", SWITZERLAND: "🇨🇭", SWISS: "🇨🇭",
+      DZ: "🇩🇿", DZA: "🇩🇿", ALG: "🇩🇿", ALGERIA: "🇩🇿", ALGERIAN: "🇩🇿",
+      FR: "🇫🇷", FRA: "🇫🇷", FRANCE: "🇫🇷", FRENCH: "🇫🇷",
+      GB: "🇬🇧", GBR: "🇬🇧", UK: "🇬🇧", ENG: "🇬🇧", "UNITED KINGDOM": "🇬🇧", "GREAT BRITAIN": "🇬🇧", BRITISH: "🇬🇧",
+      PL: "🇵🇱", POL: "🇵🇱", POLAND: "🇵🇱", POLISH: "🇵🇱",
+      CZ: "🇨🇿", CZE: "🇨🇿", CZECHIA: "🇨🇿", "CZECH REPUBLIC": "🇨🇿", CZECH: "🇨🇿",
+      SE: "🇸🇪", SWE: "🇸🇪", SWEDEN: "🇸🇪", SWEDISH: "🇸🇪",
+      PT: "🇵🇹", PRT: "🇵🇹", POR: "🇵🇹", PORTUGAL: "🇵🇹", PORTUGUESE: "🇵🇹",
+      TR: "🇹🇷", TUR: "🇹🇷", TURKEY: "🇹🇷", "TÜRKIYE": "🇹🇷", TURKISH: "🇹🇷",
+      AU: "🇦🇺", AUS: "🇦🇺", AUSTRALIA: "🇦🇺", AUSTRALIAN: "🇦🇺",
+      DE: "🇩🇪", DEU: "🇩🇪", GER: "🇩🇪", GERMANY: "🇩🇪",
+      ES: "🇪🇸", ESP: "🇪🇸", SPAIN: "🇪🇸",
+      IT: "🇮🇹", ITA: "🇮🇹", ITALY: "🇮🇹",
+      NL: "🇳🇱", NLD: "🇳🇱", NETHERLANDS: "🇳🇱",
+      BE: "🇧🇪", BEL: "🇧🇪", BELGIUM: "🇧🇪",
+      DK: "🇩🇰", DNK: "🇩🇰", DENMARK: "🇩🇰",
+      FI: "🇫🇮", FIN: "🇫🇮", FINLAND: "🇫🇮",
+      NO: "🇳🇴", NOR: "🇳🇴", NORWAY: "🇳🇴",
+      US: "🇺🇸", USA: "🇺🇸", "UNITED STATES": "🇺🇸",
+      CA: "🇨🇦", CAN: "🇨🇦", CANADA: "🇨🇦",
+      BR: "🇧🇷", BRA: "🇧🇷", BRAZIL: "🇧🇷"
+    };
+
+    function getFlagEmoji(nationality) {
+      if (!nationality) return "";
+      const clean = String(nationality).trim();
+      if (!clean || /^(none|-|n\/a|null|tbd)$/i.test(clean)) return "";
+      // Check if already a regional indicator emoji
+      if (/[\u{1F1E6}-\u{1F1FF}]/u.test(clean)) return clean;
+      const upper = clean.toUpperCase();
+      if (COUNTRY_TO_FLAG[upper]) return COUNTRY_TO_FLAG[upper];
+      if (/^[A-Z]{2}$/.test(upper)) {
+        return String.fromCodePoint(
+          0x1f1e6 + upper.charCodeAt(0) - 65,
+          0x1f1e6 + upper.charCodeAt(1) - 65
+        );
+      }
+      return "";
+    }
+
+    const LOGO_ALIASES = {
+      "team abyssal": "Abyssal",
+      "all gamers": "AG",
+      "airwalkers": "Airwalkers",
+      "big": "Big",
+      "bombo": "bombo",
+      "brothers": "Brothers",
+      "cook": "Cook",
+      "dyslexai": "dyslexai",
+      "grassboyz": "GrassBoyz",
+      "loading": "Loading",
+      "navi x joel": "NavixJoel",
+      "nyxar competitive": "Nyxar",
+      "team nyxbar": "NyxBar",
+      "onic x josh": "Onic",
+      "overdrive": "Overdrive",
+      "piwo": "Piwo",
+      "ragnarok": "Ragnarok",
+      "rnboi": "RNBOI",
+      "tmtas": "tmtas",
+      "weibo x fut": "WeiboxFUT",
+      "wings": "wings"
+    };
+
+    function getTeamLogoHTML(team) {
+      if (!team || !team.name || /^(tbd|bye|-)$/i.test(team.name)) return "";
+
+      const cleanName = String(team.name).toLowerCase().trim();
+      // 1. Look up in alias map, 2. try team.id, 3. fall back to cleanName
+      const filename = LOGO_ALIASES[cleanName] || team.id || cleanName;
+
+      const src = `logos/${encodeURIComponent(filename)}.png`;
+      return `<img class="team-logo" src="${src}" alt="" loading="lazy" onerror="this.style.display='none'" />`;
+    }
+
+    function formatScheduleDate(raw) {
+      if (!raw) return "";
+      const str = String(raw).trim();
+      if (/^[A-Z][a-z]{2}-\d{2}\s+\d{2}:\d{2}$/.test(str)) {
+        return str;
+      }
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const isoMatch = str.match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})[T\s]+(\d{1,2}):(\d{2})/);
+      if (isoMatch) {
+        const m = parseInt(isoMatch[2], 10) - 1;
+        const d = String(isoMatch[3]).padStart(2, "0");
+        const hh = String(isoMatch[4]).padStart(2, "0");
+        const mm = String(isoMatch[5]).padStart(2, "0");
+        if (months[m]) return `${months[m]}-${d} ${hh}:${mm}`;
+      }
+      const textMatch = str.match(/([A-Za-z]{3})[a-z]*[\s\-/,]+(\d{1,2})(?:[\s,]+(?:\d{4})?)?\s+(\d{1,2}):(\d{2})/);
+      if (textMatch) {
+        const mName = textMatch[1].charAt(0).toUpperCase() + textMatch[1].slice(1, 3).toLowerCase();
+        const d = String(textMatch[2]).padStart(2, "0");
+        const hh = String(textMatch[3]).padStart(2, "0");
+        const mm = String(textMatch[4]).padStart(2, "0");
+        return `${mName}-${d} ${hh}:${mm}`;
+      }
+      const parsed = new Date(str);
+      if (!isNaN(parsed.getTime())) {
+        const m = months[parsed.getMonth()];
+        const d = String(parsed.getDate()).padStart(2, "0");
+        const hh = String(parsed.getHours()).padStart(2, "0");
+        const mm = String(parsed.getMinutes()).padStart(2, "0");
+        return `${m}-${d} ${hh}:${mm}`;
+      }
+      return str;
+    }
+
+    /* ============================================================
+       3. CSV PARSER & DATA MODEL BUILDER
+       ============================================================ */
+    function parseCSVText(text) {
+      const rows = [];
+      let row = [];
+      let cur = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        const next = text[i + 1];
+        if (inQuotes) {
+          if (ch === '"' && next === '"') {
+            cur += '"';
+            i++;
+          } else if (ch === '"') {
+            inQuotes = false;
+          } else {
+            cur += ch;
+          }
+        } else {
+          if (ch === '"') {
+            inQuotes = true;
+          } else if (ch === ",") {
+            row.push(cur.trim());
+            cur = "";
+          } else if (ch === "\n" || (ch === "\r" && next === "\n")) {
+            if (ch === "\r") i++;
+            row.push(cur.trim());
+            rows.push(row);
+            row = [];
+            cur = "";
+          } else if (ch !== "\r") {
+            cur += ch;
+          }
+        }
+      }
+      if (cur.length > 0 || row.length > 0) {
+        row.push(cur.trim());
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    function parseTournamentCSV(csvText) {
+      const rows = parseCSVText(csvText);
+      if (rows.length < 2) {
+        throw new Error("CSV has insufficient rows");
+      }
+
+      // Row 0 is the single header line, Row 1+ is pure data
+      const dataRows = rows.slice(1);
+
+      // 1. Parse Players (Cols O:S -> indices 14..18)
+      const playersById = new Map();
+      const playersByHandle = new Map();
+
+      for (const r of dataRows) {
+        const pid = (r[14] || "").trim();
+        const handle = (r[15] || "").trim();
+        const nat = (r[17] || "").trim();
+        if (!pid && !handle) continue;
+        const playerObj = {
+          id: pid,
+          handle: handle || pid,
+          teamId: (r[16] || "").trim(),
+          nationality: nat,
+          flag: getFlagEmoji(nat)
+        };
+        if (pid) playersById.set(pid, playerObj);
+        if (handle) playersByHandle.set(handle.toLowerCase(), playerObj);
+      }
+
+      // 2. Parse Participants (Cols B:L -> indices 1..11)
+      const participants = [];
+      const teamById = new Map();
+      const teamByName = new Map();
+
+      for (const r of dataRows) {
+        const teamId = (r[1] || "").trim();
+        const teamName = (r[2] || "").trim();
+        const rawSeed = (r[3] || "").trim().replace(/^#/, "");
+        if (!teamId && !teamName) continue;
+
+        const seed = parseInt(rawSeed, 10) || participants.length + 1;
+        const colsEL = r.slice(4, 12).map(c => (c || "").trim());
+
+        // Support both interleaved [id, handle, id, handle...] and grouped [id1..4, handle1..4]
+        const isGroupedIds =
+          colsEL[1] && playersById.has(colsEL[1]) && (!colsEL[4] || !playersById.has(colsEL[4]));
+
+        let rawPairs = [];
+        if (isGroupedIds) {
+          rawPairs = [
+            { id: colsEL[0], handle: colsEL[4], role: "player" },
+            { id: colsEL[1], handle: colsEL[5], role: "player" },
+            { id: colsEL[2], handle: colsEL[6], role: "sub" },
+            { id: colsEL[3], handle: colsEL[7], role: "sub" }
+          ];
+        } else {
+          rawPairs = [
+            { id: colsEL[0], handle: colsEL[1], role: "player" },
+            { id: colsEL[2], handle: colsEL[3], role: "player" },
+            { id: colsEL[4], handle: colsEL[5], role: "sub" },
+            { id: colsEL[6], handle: colsEL[7], role: "sub" }
+          ];
+        }
+
+        const teamPlayers = [];
+        const teamSubs = [];
+
+        for (const pair of rawPairs) {
+          if (!pair.id && !pair.handle) continue;
+          const pInfo =
+            playersById.get(pair.id) ||
+            playersByHandle.get((pair.handle || "").toLowerCase()) ||
+            playersById.get(pair.handle);
+
+          const handle = pair.handle || (pInfo ? pInfo.handle : pair.id);
+          if (!handle || /^(none|-)$/i.test(handle)) continue;
+          const flag = pInfo ? pInfo.flag : "";
+          const safeHandle = escapeHtml(handle);
+          const entry = {
+            id: pair.id || (pInfo ? pInfo.id : ""),
+            handle,
+            flag,
+            formatted: flag 
+              ? `<span class="flag-icon">${flag}</span>\u00A0 ${safeHandle}` 
+              : safeHandle
+          };
+
+          if (pair.role === "player") {
+            teamPlayers.push(entry);
+          } else {
+            teamSubs.push(entry);
+          }
+        }
+
+        const teamObj = {
+          id: teamId || `T_${seed}`,
+          name: teamName || teamId,
+          seed,
+          players: teamPlayers,
+          subs: teamSubs
+        };
+
+        participants.push(teamObj);
+        teamById.set(teamObj.id, teamObj);
+        teamByName.set(teamObj.name.toLowerCase(), teamObj);
+      }
+
+      participants.sort((a, b) => a.seed - b.seed);
+
+      // 3. Parse Bracket Logic (Cols V:AB -> indices 21..27)
+      const bracketMap = new Map();
+      for (const r of dataRows) {
+        const bid = (r[21] || "").trim();
+        if (!bid) continue;
+        bracketMap.set(bid, {
+          bracketId: bid,
+          roundLabel: (r[22] || "").trim(),
+          origin1: (r[23] || "").trim(),
+          origin2: (r[24] || "").trim(),
+          winnerTo: (r[25] || "").trim(),
+          loserTo: (r[26] || "").trim(),
+          format: (r[27] || "BO5").trim()
+        });
+      }
+
+      // 4. Parse Matches (Cols AE:AT -> indices 30..45)
+      // Resolve dynamic columns within AE:AT while anchoring AE(30), AF(31), AI(34), AN(39)
+      const resolveTeam = val => {
+        const clean = String(val || "").trim();
+        if (!clean) return null;
+
+        // Auto-assign Seed #16 to BYE placeholders
+        if (/^bye$/i.test(clean)) {
+          return { id: "BYE", name: "BYE", seed: 16, players: [], subs: [] };
+        }
+
+        if (teamById.has(clean)) return teamById.get(clean);
+        if (teamByName.has(clean.toLowerCase())) return teamByName.get(clean.toLowerCase());
+        return { id: clean, name: clean, seed: null, players: [], subs: [] };
+      };
+
+      const activeMatches = [];
+      for (const r of dataRows) {
+        const matchId = (r[30] || "").trim();
+        const bracketId = (r[31] || "").trim();
+        
+        // Only accept actual match IDs starting with M_
+        if (!matchId.toUpperCase().startsWith("M_")) continue;
+
+        const statusRaw = (r[39] || "").trim();
+        if (statusRaw.toLowerCase() === "not played") {
+          continue;
+        }
+
+        const scheduled = formatScheduleDate(r[34] || "");
+
+        // Resolve Team 1 & Team 2 from AJ:AM (35..38)
+        const t1Cand = resolveTeam(r[36]) || resolveTeam(r[35]);
+        const t2Cand = resolveTeam(r[38]) || resolveTeam(r[37]);
+
+        const team1 = t1Cand || { id: "", name: "TBD", seed: null, players: [], subs: [] };
+        const team2 = t2Cand || { id: "", name: "TBD", seed: null, players: [], subs: [] };
+
+        // Correct column indices:
+        // Col AO (40) = admin
+        // Col AP (41) = best_of
+        // Col AQ (42) = end_condition
+        // Col AR (43) = score_team1
+        // Col AS (44) = score_team2
+        // Col AT (45) = winner_id
+        const score1 = String(r[43] ?? "").trim();
+        const score2 = String(r[44] ?? "").trim();
+
+        const rawWinner = (r[45] || "").trim();
+        let winnerName = "";
+        if (rawWinner) {
+          const wTeam = resolveTeam(rawWinner);
+          winnerName = wTeam ? wTeam.name : rawWinner;
+        } else if (score1 !== "" && score2 !== "") {
+          if (score1 === "W" || Number(score1) > Number(score2)) winnerName = team1.name;
+          else if (score2 === "W" || Number(score2) > Number(score1)) winnerName = team2.name;
+        }
+
+        const bInfo = bracketMap.get(bracketId) || {};
+        const isUpper = bracketId.includes("_UB");
+        const isQualifier = QUALIFIER_BRACKET_IDS.has(bracketId);
+
+        let roundShort = (r[33] || bInfo.roundLabel || "").trim();
+        if (!roundShort) {
+          const m = bracketId.match(/^R(\d+)_(UB|LB)/);
+          if (m) roundShort = `${m[2] === "UB" ? "Upper" : "Lower"} R${m[1]}`;
+        }
+
+        let normStatus = "completed";
+        if (/live/i.test(statusRaw)) normStatus = "live";
+        else if (/upcoming|pending|scheduled/i.test(statusRaw) || (!winnerName && !score1 && !score2)) {
+          normStatus = "upcoming";
+        }
+
+        activeMatches.push({
+          matchId,
+          bracketId,
+          isUpper,
+          isQualifier,
+          roundShort,
+          scheduled,
+          timeOnly: (scheduled.split(" ")[1] || "").trim(),
+          team1,
+          team2,
+          score1,
+          score2,
+          winnerName,
+          status: normStatus,
+          bestOf: (r[41] || bInfo.format || "BO5").trim() // Reads Col AP (best_of)
+        });
+      }
+
+      return {
+        participants,
+        playersById,
+        bracketMap,
+        matches: activeMatches
+      };
+    }
+
+    /* ============================================================
+       4. APPLICATION STATE & RENDERING
+       ============================================================ */
+    let STATE = {
+      data: null,
+      activeTab: "bracket",
+      matchFilter: "all",
+      searchQuery: ""
+    };
+
+    function computeTeamStatusAndStandings(data) {
+      const matchByBracket = new Map();
+      data.matches.forEach(m => matchByBracket.set(m.bracketId, m));
+
+      // Top 4 Qualification Slots
+      const qualSlots = [
+        { slotTitle: "Upper Qualifier 1", bracketId: "R3_UB1" },
+        { slotTitle: "Upper Qualifier 2", bracketId: "R3_UB2" },
+        { slotTitle: "Lower Qualifier 1", bracketId: "R5_LB1" },
+        { slotTitle: "Lower Qualifier 2", bracketId: "R5_LB2" }
+      ].map(s => {
+        const m = matchByBracket.get(s.bracketId);
+        const winningTeam =
+          m && m.winnerName
+            ? m.team1.name === m.winnerName
+              ? m.team1
+              : m.team2.name === m.winnerName
+              ? m.team2
+              : null
+            : null;
+        return {
+          ...s,
+          qualifiedTeam: winningTeam
+        };
+      });
+
+      // Map each team's journey & current standing badge
+      const teamStatusMap = new Map();
+      for (const team of data.participants) {
+        const teamMatches = data.matches.filter(
+          m => m.team1.name === team.name || m.team2.name === team.name
+        );
+
+        let badgeType = "lower";
+        let badgeText = "Lower Bracket";
+
+        // Check if qualified in R3_UB or R5_LB
+        const wonQual = teamMatches.some(
+          m => m.isQualifier && m.winnerName === team.name
+        );
+        if (wonQual) {
+          badgeType = "qualified";
+          badgeText = "Qualified (Top 4)";
+        } else {
+          // Check if eliminated in Lower Bracket
+          const lostLower = teamMatches.find(
+            m =>
+              !m.isUpper &&
+              m.status === "completed" &&
+              m.winnerName &&
+              m.winnerName !== team.name
+          );
+          if (lostLower) {
+            badgeType = "eliminated";
+            if (lostLower.bracketId.startsWith("R2_LB")) {
+              badgeText = "Eliminated • 13th–16th";
+            } else if (lostLower.bracketId.startsWith("R3_LB")) {
+              badgeText = "Eliminated • 9th–12th";
+            } else if (lostLower.bracketId.startsWith("R4_LB")) {
+              badgeText = "Eliminated • 7th–8th";
+            } else {
+              badgeText = "Eliminated • 5th–6th";
+            }
+          }
+        }
+
+        teamStatusMap.set(team.name, {
+          badgeType,
+          badgeText,
+          journey: teamMatches
+        });
+      }
+
+      return { qualSlots, teamStatusMap };
+    }
+
+    function renderTopBanner(qualSlots) {
+      const container = document.getElementById("qualSlotsContainer");
+      container.innerHTML = qualSlots
+        .map(slot => {
+          if (slot.qualifiedTeam) {
+            return `
+              <div class="qual-slot-card qualified">
+                <div class="qual-slot-info">
+                  <div class="qual-team-row">
+                    <span class="seed-pill">#${slot.qualifiedTeam.seed}</span>
+                    ${getTeamLogoHTML(slot.qualifiedTeam)}
+                    <span>${escapeHtml(slot.qualifiedTeam.name)}</span>
+                  </div>
+                  <div class="qual-slot-label">${escapeHtml(slot.slotTitle)}</div>
+                </div>
+                <span class="badge-qualified-solid">✔ QUALIFIED</span>
+              </div>
+            `;
+          } else {
+            return `
+              <div class="qual-slot-card pending">
+                <div class="qual-slot-info">
+                  <div class="qual-slot-label-top">${escapeHtml(slot.slotTitle)}</div>
+                  <div class="qual-slot-sub">TBD • Awaiting Qualification</div>
+                </div>
+                <span class="badge-pending-dashed">PENDING</span>
+              </div>
+            `;
+          }
+        })
+        .join("");
+    }
+
+    function renderBracketCardHTML(match) {
+      const t1Win = match.winnerName && match.winnerName === match.team1.name;
+      const t2Win = match.winnerName && match.winnerName === match.team2.name;
+
+      const s1Disp = match.score1 !== "" ? match.score1 : "—";
+      const s2Disp = match.score2 !== "" ? match.score2 : "—";
+
+      let statusBadge = `<span class="mc-status-badge completed">✔ COMPLETED</span>`;
+      if (match.status === "upcoming") {
+        statusBadge = `<span class="mc-status-badge upcoming">UPCOMING</span>`;
+      } else if (match.status === "live") {
+        statusBadge = `<span class="mc-status-badge live">● LIVE</span>`;
+      }
+
+      const qualBadge = match.isQualifier
+        ? `<span class="mc-qualifier-badge">★ QUALIFIER</span>`
+        : "";
+
+      return `
+        <div class="match-card ${match.isQualifier ? "qualifier-card" : ""}"
+             data-match-id="${escapeHtml(match.matchId)}"
+             data-bracket-id="${escapeHtml(match.bracketId)}">
+          <div class="match-card-header">
+            <div class="mc-header-left">
+              <span class="mc-bracket-id">${escapeHtml(match.bracketId)}</span>
+              ${qualBadge}
+            </div>
+            <span class="mc-time">${escapeHtml(match.scheduled)}</span>
+            ${statusBadge}
+          </div>
+          <div class="mc-team-row slot-1 ${t1Win ? "winner" : ""}">
+            <div class="mc-team-left">
+              <span class="seed-pill">#${match.team1.seed ?? "?"}</span>
+              ${getTeamLogoHTML(match.team1)}
+              <span class="mc-team-name">${escapeHtml(match.team1.name)}</span>
+            </div>
+            <span class="mc-score">${escapeHtml(s1Disp)}</span>
+          </div>
+          <div class="mc-team-row slot-2 ${t2Win ? "winner" : ""}">
+            <div class="mc-team-left">
+              <span class="seed-pill">#${match.team2.seed ?? "?"}</span>
+              ${getTeamLogoHTML(match.team2)}
+              <span class="mc-team-name">${escapeHtml(match.team2.name)}</span>
+            </div>
+            <span class="mc-score">${escapeHtml(s2Disp)}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBrackets(data) {
+      const matchByBracket = new Map();
+      data.matches.forEach(m => matchByBracket.set(m.bracketId, m));
+
+      // Upper Bracket Columns
+      const upperColumns = [
+        {
+          title: "ROUND 1 (BO5)",
+          isQualifier: false,
+          ids: ["R1_UB1", "R1_UB2", "R1_UB3", "R1_UB4", "R1_UB5", "R1_UB6", "R1_UB7", "R1_UB8"]
+        },
+        {
+          title: "ROUND 2 • QUARTERS (BO5)",
+          isQualifier: false,
+          ids: ["R2_UB1", "R2_UB2", "R2_UB3", "R2_UB4"]
+        },
+        {
+          title: "ROUND 3 • UPPER QUALIFIERS (BO5)",
+          isQualifier: true,
+          ids: ["R3_UB1", "R3_UB2"]
+        }
+      ];
+
+      // Lower Bracket Columns
+      const lowerColumns = [
+        {
+          title: "ROUND 2 • LOWER R2 (BO5)",
+          isQualifier: false,
+          ids: ["R2_LB1", "R2_LB2", "R2_LB3", "R2_LB4"]
+        },
+        {
+          title: "ROUND 3 • LOWER R3 (BO5)",
+          isQualifier: false,
+          ids: ["R3_LB1", "R3_LB2", "R3_LB3", "R3_LB4"]
+        },
+        {
+          title: "ROUND 4 • LOWER R4 (BO5)",
+          isQualifier: false,
+          ids: ["R4_LB1", "R4_LB2"]
+        },
+        {
+          title: "ROUND 5 • LOWER QUALIFIERS (BO5)",
+          isQualifier: true,
+          ids: ["R5_LB1", "R5_LB2"]
+        }
+      ];
+
+      const upperCanvas = document.getElementById("upperBracketCanvas");
+      const lowerCanvas = document.getElementById("lowerBracketCanvas");
+
+      upperCanvas.innerHTML =
+        `<svg class="bracket-svg-layer" id="upperBracketSvg"></svg>` +
+        upperColumns
+          .map(col => {
+            const cardsHtml = col.ids
+              .map(id => matchByBracket.get(id))
+              .filter(Boolean)
+              .map(m => renderBracketCardHTML(m))
+              .join("");
+            return `
+              <div class="bracket-column ${col.isQualifier ? "qualifier-col" : ""}">
+                <div class="bracket-col-header ${col.isQualifier ? "qualifier-header" : ""}">${col.title}</div>
+                <div class="bracket-col-matches">${cardsHtml}</div>
+              </div>
+            `;
+          })
+          .join("");
+
+      lowerCanvas.innerHTML =
+        `<svg class="bracket-svg-layer" id="lowerBracketSvg"></svg>` +
+        lowerColumns
+          .map(col => {
+            const cardsHtml = col.ids
+              .map(id => matchByBracket.get(id))
+              .filter(Boolean)
+              .map(m => renderBracketCardHTML(m))
+              .join("");
+            return `
+              <div class="bracket-column ${col.isQualifier ? "qualifier-col" : ""}">
+                <div class="bracket-col-header ${col.isQualifier ? "qualifier-header" : ""}">${col.title}</div>
+                <div class="bracket-col-matches">${cardsHtml}</div>
+              </div>
+            `;
+          })
+          .join("");
+
+      attachBracketInteractions();
+      requestAnimationFrame(() => drawAllBracketConnectors());
+    }
+
+    /* ============================================================
+       5. SEAM CONNECTOR LINES & LINEAGE TRACING
+       ============================================================ */
+    const UPPER_CONNECTIONS = [
+      ["R1_UB1", "R2_UB1"],
+      ["R1_UB2", "R2_UB1"],
+      ["R1_UB3", "R2_UB2"],
+      ["R1_UB4", "R2_UB2"],
+      ["R1_UB5", "R2_UB3"],
+      ["R1_UB6", "R2_UB3"],
+      ["R1_UB7", "R2_UB4"],
+      ["R1_UB8", "R2_UB4"],
+      ["R2_UB1", "R3_UB1"],
+      ["R2_UB2", "R3_UB1"],
+      ["R2_UB3", "R3_UB2"],
+      ["R2_UB4", "R3_UB2"]
+    ];
+
+    const LOWER_CONNECTIONS = [
+      ["R2_LB1", "R3_LB1"],
+      ["R2_LB2", "R3_LB2"],
+      ["R2_LB3", "R3_LB3"],
+      ["R2_LB4", "R3_LB4"],
+      ["R3_LB1", "R4_LB1"],
+      ["R3_LB2", "R4_LB1"],
+      ["R3_LB3", "R4_LB2"],
+      ["R3_LB4", "R4_LB2"],
+      ["R4_LB1", "R5_LB1"],
+      ["R4_LB2", "R5_LB2"]
+    ];
+
+    function getSeamAnchorCoords(cardEl, canvasRect) {
+      const cardRect = cardEl.getBoundingClientRect();
+      const headerEl = cardEl.querySelector(".match-card-header");
+      const slot1El = cardEl.querySelector(".mc-team-row.slot-1");
+
+      // Anchor strictly to header_height + team1_height (the dividing seam between Slot 1 & Slot 2)
+      const seamOffsetY =
+        (headerEl ? headerEl.offsetHeight : 26) + (slot1El ? slot1El.offsetHeight : 31);
+      const seamY = cardRect.top - canvasRect.top + seamOffsetY;
+
+      return {
+        leftX: cardRect.left - canvasRect.left,
+        rightX: cardRect.right - canvasRect.left,
+        seamY
+      };
+    }
+
+    function drawBracketSectionConnectors(canvasId, svgId, connections, activeLineage = null) {
+      const canvas = document.getElementById(canvasId);
+      const svg = document.getElementById(svgId);
+      if (!canvas || !svg) return;
+
+      const canvasRect = canvas.getBoundingClientRect();
+      if (canvasRect.width === 0) return;
+
+      const defaultPaths = [];
+      const highlightPaths = [];
+
+      connections.forEach(([fromId, toId]) => {
+        const fromCard = canvas.querySelector(`.match-card[data-bracket-id="${fromId}"]`);
+        const toCard = canvas.querySelector(`.match-card[data-bracket-id="${toId}"]`);
+        if (!fromCard || !toCard) return;
+
+        const p1 = getSeamAnchorCoords(fromCard, canvasRect);
+        const p2 = getSeamAnchorCoords(toCard, canvasRect);
+
+        const midX = p1.rightX + (p2.leftX - p1.rightX) / 2;
+        const d = `M ${p1.rightX} ${p1.seamY} H ${midX} V ${p2.seamY} H ${p2.leftX}`;
+
+        let color = "var(--lines)";
+        let width = 1.5;
+        let isHighlighted = false;
+
+        if (activeLineage) {
+          const edgeKey = `${fromId}->${toId}`;
+          if (activeLineage.team1Edges.has(edgeKey)) {
+            color = "var(--trace-blue)";
+            width = 2;
+            isHighlighted = true;
+          } else if (activeLineage.team2Edges.has(edgeKey)) {
+            color = "var(--trace-red)";
+            width = 2;
+            isHighlighted = true;
+          }
+        }
+
+        const pathMarkup = `<path d="${d}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="square" />`;
+        if (isHighlighted) {
+          highlightPaths.push(pathMarkup);
+        } else {
+          defaultPaths.push(pathMarkup);
+        }
+      });
+
+      svg.innerHTML = defaultPaths.concat(highlightPaths).join("");
+    }
+
+    function drawAllBracketConnectors(activeLineage = null) {
+      drawBracketSectionConnectors("upperBracketCanvas", "upperBracketSvg", UPPER_CONNECTIONS, activeLineage);
+      drawBracketSectionConnectors("lowerBracketCanvas", "lowerBracketSvg", LOWER_CONNECTIONS, activeLineage);
+    }
+
+    function computeLineageForMatch(targetMatch, allMatches) {
+      const t1Name = targetMatch.team1.name;
+      const t2Name = targetMatch.team2.name;
+
+      const targetIndex = allMatches.findIndex(m => m.matchId === targetMatch.matchId);
+      const priorMatches = targetIndex >= 0 ? allMatches.slice(0, targetIndex) : allMatches;
+
+      const team1Matches = new Set();
+      const team2Matches = new Set();
+
+      priorMatches.forEach(m => {
+        if (m.team1.name === t1Name || m.team2.name === t1Name) {
+          team1Matches.add(m.bracketId);
+        }
+        if (m.team1.name === t2Name || m.team2.name === t2Name) {
+          team2Matches.add(m.bracketId);
+        }
+      });
+
+      const team1Edges = new Set();
+      const team2Edges = new Set();
+
+      const allConns = UPPER_CONNECTIONS.concat(LOWER_CONNECTIONS);
+      allConns.forEach(([fromId, toId]) => {
+        const t1InFrom = team1Matches.has(fromId);
+        const t1InTo = team1Matches.has(toId) || toId === targetMatch.bracketId;
+        if (t1InFrom && t1InTo) {
+          team1Edges.add(`${fromId}->${toId}`);
+        }
+
+        const t2InFrom = team2Matches.has(fromId);
+        const t2InTo = team2Matches.has(toId) || toId === targetMatch.bracketId;
+        if (t2InFrom && t2InTo) {
+          team2Edges.add(`${fromId}->${toId}`);
+        }
+      });
+
+      return {
+        targetBracketId: targetMatch.bracketId,
+        team1Matches,
+        team2Matches,
+        team1Edges,
+        team2Edges
+      };
+    }
+
+    function attachBracketInteractions() {
+      const matchByBracket = new Map();
+      STATE.data.matches.forEach(m => matchByBracket.set(m.bracketId, m));
+
+      const allCards = document.querySelectorAll(".match-card");
+
+      allCards.forEach(card => {
+        card.addEventListener("mouseenter", e => {
+          const bid = card.getAttribute("data-bracket-id");
+          const match = matchByBracket.get(bid);
+          if (!match) return;
+
+          const lineage = computeLineageForMatch(match, STATE.data.matches);
+
+          // Highlight both slots on the hovered card with indicator bars & background tints
+          const slot1 = card.querySelector(".mc-team-row.slot-1");
+          const slot2 = card.querySelector(".mc-team-row.slot-2");
+          if (slot1) slot1.classList.add("active-hover-t1");
+          if (slot2) slot2.classList.add("active-hover-t2");
+
+          allCards.forEach(other => {
+            const obid = other.getAttribute("data-bracket-id");
+            other.classList.remove("trace-team1", "trace-team2");
+            if (lineage.team1Matches.has(obid)) {
+              other.classList.add("trace-team1");
+            } else if (lineage.team2Matches.has(obid)) {
+              other.classList.add("trace-team2");
+            }
+          });
+
+          drawAllBracketConnectors(lineage);
+          showMatchPopover(match, e.clientX, e.clientY);
+        });
+
+        card.addEventListener("mousemove", e => {
+          positionPopover(e.clientX, e.clientY);
+        });
+
+        card.addEventListener("mouseleave", () => {
+          allCards.forEach(other => {
+            other.classList.remove("trace-team1", "trace-team2");
+            const s1 = other.querySelector(".mc-team-row.slot-1");
+            const s2 = other.querySelector(".mc-team-row.slot-2");
+            if (s1) s1.classList.remove("active-hover-t1");
+            if (s2) s2.classList.remove("active-hover-t2");
+          });
+          drawAllBracketConnectors(null);
+          hidePopover();
+        });
+      });
+    }
+
+    /* ============================================================
+       6. TAB B: MATCH LIST RENDERING & FILTERING
+       ============================================================ */
+    function renderMatchList(data) {
+      document.getElementById("matchListTabLabel").textContent = `Match List (${data.matches.length})`;
+      const allBtn = document.querySelector('#matchFilterPills [data-filter="all"]');
+      if (allBtn) allBtn.textContent = `All Active (${data.matches.length})`;
+
+      const q = STATE.searchQuery.trim().toLowerCase();
+      const filter = STATE.matchFilter;
+
+      const filtered = data.matches.filter(m => {
+        if (filter === "live" && m.status !== "live") return false;
+        if (filter === "upcoming" && m.status !== "upcoming") return false;
+        if (filter === "completed" && m.status !== "completed") return false;
+        if (filter === "upper" && !m.isUpper) return false;
+        if (filter === "lower" && m.isUpper) return false;
+
+        if (q) {
+          const t1Players = m.team1.players.concat(m.team1.subs).map(p => p.handle.toLowerCase()).join(" ");
+          const t2Players = m.team2.players.concat(m.team2.subs).map(p => p.handle.toLowerCase()).join(" ");
+          const haystack = `${m.matchId} ${m.bracketId} ${m.roundShort} ${m.team1.name} ${m.team2.name} ${t1Players} ${t2Players}`.toLowerCase();
+          if (!haystack.includes(q)) return false;
+        }
+        return true;
+      });
+
+      const tbody = document.getElementById("matchTableBody");
+      tbody.innerHTML = filtered
+        .map(m => {
+          const t1Win = m.winnerName && m.winnerName === m.team1.name;
+          const t2Win = m.winnerName && m.winnerName === m.team2.name;
+
+          const s1Disp = m.score1 !== "" ? m.score1 : "—";
+          const s2Disp = m.score2 !== "" ? m.score2 : "—";
+
+          let pillClass = m.isUpper ? "upper" : "lower";
+          let pillPrefix = "";
+          if (m.isQualifier) {
+            pillClass = "qualifier";
+            pillPrefix = "★ ";
+          }
+
+          let statusBadge = `<span class="mc-status-badge completed">✔ COMPLETED</span>`;
+          if (m.status === "upcoming") {
+            statusBadge = `<span class="mc-status-badge upcoming">UPCOMING</span>`;
+          } else if (m.status === "live") {
+            statusBadge = `<span class="mc-status-badge live">● LIVE</span>`;
+          }
+
+          return `
+            <tr>
+              <td class="col-id">${escapeHtml(m.matchId)}</td>
+              <td class="col-bracket">
+                <span class="bracket-round-pill ${pillClass}">${pillPrefix}${escapeHtml(m.bracketId)}</span>
+              </td>
+              <td class="col-sched">${escapeHtml(m.scheduled)}</td>
+              <td class="col-team1">
+                <div class="table-team-wrap">
+                  <span class="seed-pill">#${m.team1.seed ?? "?"}</span>
+                  ${getTeamLogoHTML(m.team1)}
+                  <span class="table-team-name ${t1Win ? "winner" : ""}">${escapeHtml(m.team1.name)}</span>
+                </div>
+              </td>
+              <td class="col-s1 ${t1Win ? "win-score" : ""}">${escapeHtml(s1Disp)}</td>
+              <td class="col-vs">:</td>
+              <td class="col-s2 ${t2Win ? "win-score" : ""}">${escapeHtml(s2Disp)}</td>
+              <td class="col-team2">
+                <div class="table-team-wrap">
+                  <span class="seed-pill">#${m.team2.seed ?? "?"}</span>
+                  ${getTeamLogoHTML(m.team2)}
+                  <span class="table-team-name ${t2Win ? "winner" : ""}">${escapeHtml(m.team2.name)}</span>
+                </div>
+              </td>
+              <td class="col-status">${statusBadge}</td>
+            </tr>
+          `;
+        })
+        .join("");
+    }
+
+    /* ============================================================
+       7. TAB C: ROSTERS & STANDINGS RENDERING
+       ============================================================ */
+    function renderRostersAndStandings(data, teamStatusMap) {
+      const grid = document.getElementById("rostersGrid");
+
+      grid.innerHTML = data.participants
+        .map(team => {
+          const st = teamStatusMap.get(team.name) || {
+            badgeType: "lower",
+            badgeText: "Lower Bracket",
+            journey: []
+          };
+
+          const playersStr =
+            team.players.length > 0
+              ? team.players.map(p => p.formatted).join("  |  ")
+              : "None";
+
+          const subsStr =
+            team.subs.length > 0
+              ? team.subs.map(s => s.formatted).join("  |  ")
+              : "None";
+
+          return `
+            <div class="team-card ${st.badgeType === "qualified" ? "qualified" : ""}"
+                 data-team-name="${escapeHtml(team.name)}">
+              <div class="team-card-top">
+                <span class="seed-pill">#${team.seed}</span>
+                ${getTeamLogoHTML(team)}
+                <span class="team-card-name">${escapeHtml(team.name)}</span>
+              </div>
+              <span class="team-standing-badge ${st.badgeType}">${escapeHtml(st.badgeText)}</span>
+              <div class="roster-box">
+                <div class="roster-line">
+                  <span class="roster-label">PLAYERS:</span>
+                  <span class="roster-players">${playersStr}</span>
+                </div>
+                <div class="roster-line">
+                  <span class="roster-label">SUBS:</span>
+                  <span class="roster-subs">${subsStr}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+
+      const cards = grid.querySelectorAll(".team-card");
+      cards.forEach(card => {
+        card.addEventListener("mouseenter", e => {
+          const teamName = card.getAttribute("data-team-name");
+          const st = teamStatusMap.get(teamName);
+          if (!st) return;
+          showTeamJourneyPopover(teamName, st.journey, e.clientX, e.clientY);
+        });
+        card.addEventListener("mousemove", e => {
+          positionPopover(e.clientX, e.clientY);
+        });
+        card.addEventListener("mouseleave", () => {
+          hidePopover();
+        });
+      });
+    }
+
+    /* ============================================================
+       8. POPOVER TOOLTIP ENGINE (COLLISION DETECTION)
+       ============================================================ */
+    const popoverEl = document.getElementById("floatingPopover");
+
+    function showMatchPopover(match, clientX, clientY) {
+      const t1Players =
+        match.team1.players.length > 0
+          ? match.team1.players.map(p => p.formatted).join(" | ")
+          : "None";
+      const t2Players =
+        match.team2.players.length > 0
+          ? match.team2.players.map(p => p.formatted).join(" | ")
+          : "None";
+
+      const boFormat = match.bestOf ? (match.bestOf.startsWith("BO") ? match.bestOf : `BO${match.bestOf}`) : "BO5";
+
+      popoverEl.innerHTML = `
+        <div class="popover-header">
+          <span class="popover-title">👥 Rosters</span>
+          <span class="popover-meta">${escapeHtml(match.bracketId)} • ${escapeHtml(match.timeOnly)}</span>
+        </div>
+        <div class="popover-team-block">
+          <div class="popover-team-name team1">${escapeHtml(match.team1.name)}</div>
+          <div class="popover-roster-line">${t1Players}</div>
+        </div>
+        <div class="popover-team-block">
+          <div class="popover-team-name team2">${escapeHtml(match.team2.name)}</div>
+          <div class="popover-roster-line">${t2Players}</div>
+        </div>
+      `;
+      popoverEl.classList.add("visible");
+      positionPopover(clientX, clientY);
+    }
+
+    function showTeamJourneyPopover(teamName, journeyMatches, clientX, clientY) {
+      const rowsHtml = journeyMatches
+        .map(m => {
+          const isTeam1 = m.team1.name === teamName;
+          const opp = isTeam1 ? m.team2.name : m.team1.name;
+          const myScore = isTeam1 ? m.score1 : m.score2;
+          const oppScore = isTeam1 ? m.score2 : m.score1;
+
+          const isWin = m.winnerName === teamName;
+          const hasScores = myScore !== "" && oppScore !== "";
+          const scoreLabel = hasScores ? `${myScore}-${oppScore}` : "---";
+
+          return `
+            <div class="journey-row">
+              <div class="journey-left">
+                <span class="journey-bracket-id">${escapeHtml(m.bracketId)}</span>
+                <span class="journey-opp">vs ${escapeHtml(opp)}</span>
+              </div>
+              <span class="journey-result-pill ${isWin ? "win" : "loss"}">
+                ${isWin ? "WIN" : "LOSS"} (${escapeHtml(scoreLabel)})
+              </span>
+            </div>
+          `;
+        })
+        .join("");
+
+      popoverEl.innerHTML = `
+        <div class="popover-header">
+          <span class="popover-title">${escapeHtml(teamName)}</span>
+          <span class="popover-meta">Journey (${journeyMatches.length} Matches)</span>
+        </div>
+        <div class="journey-list">${rowsHtml}</div>
+      `;
+      popoverEl.classList.add("visible");
+      positionPopover(clientX, clientY);
+    }
+
+    function positionPopover(clientX, clientY) {
+      if (!popoverEl.classList.contains("visible")) return;
+      const offset = 16;
+      const rect = popoverEl.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      let left = clientX + offset;
+      let top = clientY + offset;
+
+      if (left + rect.width + 12 > vw) {
+        left = clientX - rect.width - offset;
+      }
+      if (top + rect.height + 12 > vh) {
+        top = clientY - rect.height - offset;
+      }
+      left = Math.max(8, left);
+      top = Math.max(8, top);
+
+      popoverEl.style.left = `${left}px`;
+      popoverEl.style.top = `${top}px`;
+    }
+
+    function hidePopover() {
+      popoverEl.classList.remove("visible");
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&")
+        .replace(/</g, "<")
+        .replace(/>/g, ">")
+        .replace(/"/g, '"')
+        .replace(/'/g, "'");
+    }
+    /* ============================================================
+       9. DATA FETCHING & INITIALIZATION
+       ============================================================ */
+    async function loadTournamentData() {
+      if (!CONFIG.csvUrl) {
+        console.warn("Please set CONFIG.csvUrl.");
+        return;
+      }
+
+      try {
+        const timestamp = Date.now();
+        const endpoint = `${CONFIG.csvUrl}&_t=${timestamp}`;
+        
+        const response = await fetch(endpoint, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`Google Sheets responded with HTTP status ${response.status}`);
+        }
+
+        const csvText = await response.text();
+        const parsed = parseTournamentCSV(csvText);
+        STATE.data = parsed;
+
+        const { qualSlots, teamStatusMap } = computeTeamStatusAndStandings(parsed);
+        renderTopBanner(qualSlots);
+        renderBrackets(parsed);
+        renderMatchList(parsed);
+        renderRostersAndStandings(parsed, teamStatusMap);
+
+      } catch (err) {
+        console.error("Failed to load live tournament data:", err);
+        const banner = document.getElementById("topQualBanner");
+        if (banner) {
+          banner.innerHTML = `
+            <div style="padding: 12px; color: #ef4444; background: #fef0f0; border-radius: 8px; text-align: center; font-weight: 600;">
+              ⚠️ Could not refresh live tournament data. Please check your sheet permissions and internet connection.
+            </div>
+          `;
+        }
+      }
+    }
+
+    function setupUIEvents() {
+      // Tab switching
+      const tabBtns = document.querySelectorAll(".tab-btn");
+      const topBanner = document.getElementById("topQualBanner");
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const target = btn.getAttribute("data-tab");
+          STATE.activeTab = target;
+
+          tabBtns.forEach(b => {
+            const isAct = b === btn;
+            b.classList.toggle("active", isAct);
+            b.setAttribute("aria-selected", String(isAct));
+          });
+
+          document.querySelectorAll(".tab-pane").forEach(pane => {
+            pane.classList.toggle("active", pane.id === `tab-${target}`);
+          });
+
+          // Top Banner visible on Tab A (bracket) and Tab C (rosters), hidden on Tab B (matches)
+          if (target === "matches") {
+            topBanner.classList.add("hidden");
+          } else {
+            topBanner.classList.remove("hidden");
+          }
+
+          hidePopover();
+          if (target === "bracket") {
+            requestAnimationFrame(() => drawAllBracketConnectors());
+          }
+        });
+      });
+
+      // Theme toggle
+      const themeBtn = document.getElementById("themeToggleBtn");
+      const moonIcon = document.getElementById("themeIconMoon");
+      const sunIcon = document.getElementById("themeIconSun");
+
+      themeBtn.addEventListener("click", () => {
+        const html = document.documentElement;
+        const nextTheme = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        html.setAttribute("data-theme", nextTheme);
+        moonIcon.style.display = nextTheme === "dark" ? "none" : "block";
+        sunIcon.style.display = nextTheme === "dark" ? "block" : "none";
+        requestAnimationFrame(() => drawAllBracketConnectors());
+      });
+
+      // Match list filter pills
+      const filterPills = document.querySelectorAll("#matchFilterPills .filter-pill");
+      filterPills.forEach(pill => {
+        pill.addEventListener("click", () => {
+          filterPills.forEach(p => p.classList.remove("active"));
+          pill.classList.add("active");
+          STATE.matchFilter = pill.getAttribute("data-filter");
+          if (STATE.data) renderMatchList(STATE.data);
+        });
+      });
+
+      // Match list search input
+      const searchInput = document.getElementById("matchSearchInput");
+      searchInput.addEventListener("input", e => {
+        STATE.searchQuery = e.target.value;
+        if (STATE.data) renderMatchList(STATE.data);
+      });
+
+      // Redraw seam connectors on resize
+      window.addEventListener("resize", () => {
+        if (STATE.activeTab === "bracket") {
+          drawAllBracketConnectors();
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      setupUIEvents();
+      loadTournamentData();
+      if (CONFIG.refreshIntervalMs > 0) {
+        setInterval(loadTournamentData, CONFIG.refreshIntervalMs);
+      }
+    });
+  </script>
+</body>
+</html>
