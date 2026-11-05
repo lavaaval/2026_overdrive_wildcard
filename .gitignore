@@ -1,0 +1,25 @@
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Editor & IDE directories
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Archive and source assets (keep your repository light)
+*.zip
+*.rar
+*.7z
+*.tar.gz
+*.dds
+
+# Local logs or crash dumps
+*.log
