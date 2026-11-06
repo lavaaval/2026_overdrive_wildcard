@@ -58,6 +58,8 @@
       --status-upcoming-text: #64748b;
       --status-live-bg: #fee2e2;
       --status-live-text: #ef4444;
+      --status-ongoing-bg: #dbeafe;
+      --status-ongoing-text: #2563eb;
 
       --win-cell-bg: #dcfce7;
       --win-cell-text: #059669;
@@ -121,6 +123,8 @@
       --status-upcoming-text: #94a3b8;
       --status-live-bg: rgba(239, 68, 68, 0.2);
       --status-live-text: #f87171;
+      --status-ongoing-bg: rgba(59, 130, 246, 0.22);
+      --status-ongoing-text: #60a5fa;
 
       --win-cell-bg: rgba(16, 185, 129, 0.18);
       --win-cell-text: #34d399;
@@ -701,6 +705,42 @@
     .mc-status-badge.live {
       background: var(--status-live-bg);
       color: var(--status-live-text);
+      text-decoration: none;
+      animation: livePulse 1.8s ease-in-out infinite;
+    }
+
+    a.mc-status-badge.live:hover {
+      filter: brightness(1.1);
+      text-decoration: underline;
+    }
+
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+
+    .mc-status-badge.ongoing {
+      background: var(--status-ongoing-bg);
+      color: var(--status-ongoing-text);
+      animation: livePulse 1.8s ease-in-out infinite;
+    }
+
+    .journey-result-pill.live {
+      background: var(--status-live-bg);
+      color: var(--status-live-text);
+      text-decoration: none;
+      animation: livePulse 1.8s ease-in-out infinite;
+    }
+
+    a.journey-result-pill.live:hover {
+      filter: brightness(1.1);
+      text-decoration: underline;
+    }
+
+    .journey-result-pill.ongoing {
+      background: var(--status-ongoing-bg);
+      color: var(--status-ongoing-text);
+      animation: livePulse 1.8s ease-in-out infinite;
     }
 
     .mc-team-row {
@@ -912,6 +952,28 @@
       font-size: 12px;
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
+    }
+
+    .sched-toggle-btn {
+      background: transparent;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.15s ease;
+    }
+
+    .sched-toggle-btn:hover,
+    .sched-toggle-btn.is-local {
+      color: var(--text);
     }
 
     .sched-sep {
@@ -1335,6 +1397,18 @@
       }
     }
 
+    @media (max-width: 480px) {
+      .tab-btn {
+        padding: 5px 10px;
+        font-size: 11px;
+        gap: 4px;
+      }
+      .tab-btn svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
     /* ============================================================
        TEAM LOGOS: CRISP SIZING & DUAL-THEME CONTRAST
        ============================================================ */
@@ -1600,7 +1674,9 @@
             <tr>
               <th class="col-id">MATCH ID</th>
               <th class="col-bracket">ROUND / BRACKET</th>
-              <th class="col-sched">SCHEDULED (CET)</th>
+              <th class="col-sched">
+                <button type="button" class="sched-toggle-btn" id="tzToggleBtn">SCHEDULED (CET) ⇄</button>
+              </th>
               <th class="col-team1">TEAM 1</th>
               <th class="col-s1">S1</th>
               <th class="col-vs">VS</th>
@@ -1643,7 +1719,8 @@
        ============================================================ */
     const CONFIG = {
       csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD2Um71alwYDoejxYV15ud9NZLq8E0re8efnSUDkw5M-HN_ApEd9KOmVhuiwEm0bzPdmdQbeHw0NgC/pub?gid=0&single=true&output=csv",
-      refreshIntervalMs: 45000
+      refreshIntervalMs: 45000,
+      twitchUrl: "https://www.twitch.tv/overdrive_tm"
     };
 
     const QUALIFIER_BRACKET_IDS = new Set(["R3_UB1", "R3_UB2", "R5_LB1", "R5_LB2"]);
@@ -1724,11 +1801,45 @@
       return `<img class="team-logo" src="${src}" alt="" loading="lazy" onerror="this.style.display='none'" />`;
     }
 
-    function parseScheduleParts(raw) {
+    function cetPartsToUtcDate(year, monthIdx, day, hh, mm) {
+      // Automatically detect Central European Summer Time (last Sun of Mar -> last Sun of Oct)
+      const marchLastSun = 31 - new Date(Date.UTC(year, 2, 31)).getUTCDay();
+      const octLastSun = 31 - new Date(Date.UTC(year, 9, 31)).getUTCDay();
+      const dstStart = Date.UTC(year, 2, marchLastSun, 1, 0);
+      const dstEnd = Date.UTC(year, 9, octLastSun, 1, 0);
+      const approxUtc = Date.UTC(year, monthIdx, day, hh - 1, mm);
+      const offsetHours = approxUtc >= dstStart && approxUtc < dstEnd ? 2 : 1;
+      return new Date(Date.UTC(year, monthIdx, day, hh - offsetHours, mm));
+    }
+
+    function formatDisplayParts(year, monthIdx, day, hh, mm, useLocal) {
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+      if (useLocal) {
+        const utcDate = cetPartsToUtcDate(year, monthIdx, day, parseInt(hh, 10), parseInt(mm, 10));
+        const localHH = String(utcDate.getHours()).padStart(2, "0");
+        const localMM = String(utcDate.getMinutes()).padStart(2, "0");
+        return {
+          weekday: days[utcDate.getDay()],
+          dateText: `${months[utcDate.getMonth()]} ${utcDate.getDate()}`,
+          timeText: `${localHH}:${localMM}`
+        };
+      }
+
+      const dt = new Date(year, monthIdx, day);
+      const weekday = !isNaN(dt.getTime()) ? days[dt.getDay()] : "";
+      return {
+        weekday,
+        dateText: `${months[monthIdx]} ${day}`,
+        timeText: `${hh}:${mm}`
+      };
+    }
+
+    function parseScheduleParts(raw, useLocal = false) {
       if (!raw) return null;
       const str = String(raw).trim();
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
       // 1. Match MM/DD/YYYY HH:MM(:SS) — Google Sheets default export (e.g., "04/07/2026 17:00:00")
       const mdyYearMatch = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::\d{2})?$/);
@@ -1738,15 +1849,7 @@
         const year = parseInt(mdyYearMatch[3], 10);
         const hh = String(mdyYearMatch[4]).padStart(2, "0");
         const mm = String(mdyYearMatch[5]).padStart(2, "0");
-        if (months[monthIdx]) {
-          const dt = new Date(year, monthIdx, day);
-          const weekday = !isNaN(dt.getTime()) ? days[dt.getDay()] : "";
-          return {
-            weekday,
-            dateText: `${months[monthIdx]} ${day}`,
-            timeText: `${hh}:${mm}`
-          };
-        }
+        if (months[monthIdx]) return formatDisplayParts(year, monthIdx, day, hh, mm, useLocal);
       }
 
       // 2. Match YYYY-MM-DD HH:MM(:SS)
@@ -1757,15 +1860,7 @@
         const day = parseInt(isoMatch[3], 10);
         const hh = String(isoMatch[4]).padStart(2, "0");
         const mm = String(isoMatch[5]).padStart(2, "0");
-        if (months[monthIdx]) {
-          const dt = new Date(year, monthIdx, day);
-          const weekday = !isNaN(dt.getTime()) ? days[dt.getDay()] : "";
-          return {
-            weekday,
-            dateText: `${months[monthIdx]} ${day}`,
-            timeText: `${hh}:${mm}`
-          };
-        }
+        if (months[monthIdx]) return formatDisplayParts(year, monthIdx, day, hh, mm, useLocal);
       }
 
       // 3. Match short DD/MM HH:MM(:SS)
@@ -1775,35 +1870,27 @@
         const monthIdx = parseInt(dmyMatch[2], 10) - 1;
         const hh = String(dmyMatch[3]).padStart(2, "0");
         const mm = String(dmyMatch[4]).padStart(2, "0");
-        if (months[monthIdx]) {
-          const dt = new Date(2026, monthIdx, day);
-          const weekday = !isNaN(dt.getTime()) ? days[dt.getDay()] : "";
-          return {
-            weekday,
-            dateText: `${months[monthIdx]} ${day}`,
-            timeText: `${hh}:${mm}`
-          };
-        }
+        if (months[monthIdx]) return formatDisplayParts(2026, monthIdx, day, hh, mm, useLocal);
       }
 
       return null;
     }
 
-    function formatScheduleDate(raw) {
-      const parts = parseScheduleParts(raw);
-      if (parts) {
-        return `${parts.dateText} • ${parts.timeText}`;
-      }
-      return String(raw || "").trim();
-    }
-
-    function formatScheduleTableHTML(raw) {
-      const parts = parseScheduleParts(raw);
+    function formatScheduleTableHTML(raw, useLocal = false) {
+      const parts = parseScheduleParts(raw, useLocal);
       if (parts) {
         const fullDate = parts.weekday ? `${parts.weekday}, ${parts.dateText}` : parts.dateText;
         return `<span>${escapeHtml(fullDate)}</span><span class="sched-sep">•</span><span class="sched-time">${escapeHtml(parts.timeText)}</span>`;
       }
       return escapeHtml(String(raw || "").trim());
+    }
+
+    function formatScheduleDate(raw, useLocal = false) {
+      const parts = parseScheduleParts(raw, useLocal);
+      if (parts) {
+        return `${parts.dateText} • ${parts.timeText}`;
+      }
+      return String(raw || "").trim();
     }
 
     function formatPlaceholderHTML(name) {
@@ -2066,8 +2153,11 @@
         }
 
         let normStatus = "completed";
-        if (/live/i.test(statusRaw)) normStatus = "live";
-        else if (/upcoming|pending|scheduled/i.test(statusRaw) || (!winnerName && !score1 && !score2)) {
+        if (/\blive\b/i.test(statusRaw)) {
+          normStatus = "live";
+        } else if (/ongoing|in[\s_-]?progress|playing/i.test(statusRaw)) {
+          normStatus = "ongoing";
+        } else if (/upcoming|pending|scheduled/i.test(statusRaw) || (!winnerName && !score1 && !score2)) {
           normStatus = "upcoming";
         }
 
@@ -2077,6 +2167,7 @@
           isUpper,
           isQualifier,
           roundShort,
+          rawScheduled,
           scheduled,
           scheduledTableHTML,
           timeOnly,
@@ -2088,6 +2179,10 @@
           status: normStatus,
           bestOf: (r[41] || bInfo.format || "BO5").trim() // Reads Col AP (best_of)
         });
+      }
+
+      if (participants.length === 0 || activeMatches.length === 0) {
+        throw new Error("CSV did not contain valid participants or matches.");
       }
 
       return {
@@ -2105,7 +2200,8 @@
       data: null,
       activeTab: "bracket",
       matchFilter: "all",
-      searchQuery: ""
+      searchQuery: "",
+      useLocalTime: true
     };
 
     function computeTeamStatusAndStandings(data) {
@@ -2232,6 +2328,19 @@
         .join("");
     }
 
+    function getMatchStatusBadgeHTML(status) {
+      if (status === "live") {
+        return `<a class="mc-status-badge live" href="${escapeHtml(CONFIG.twitchUrl)}" target="_blank" rel="noopener noreferrer" title="Watch Live on Twitch" onclick="event.stopPropagation()">● LIVE</a>`;
+      }
+      if (status === "ongoing") {
+        return `<span class="mc-status-badge ongoing">● ONGOING</span>`;
+      }
+      if (status === "upcoming") {
+        return `<span class="mc-status-badge upcoming">UPCOMING</span>`;
+      }
+      return `<span class="mc-status-badge completed">✔ COMPLETED</span>`;
+    }
+
     function renderBracketCardHTML(match) {
       const t1Win = match.winnerName && match.winnerName === match.team1.name;
       const t2Win = match.winnerName && match.winnerName === match.team2.name;
@@ -2245,12 +2354,9 @@
       const seed1 = match.team1.seed ? `#${match.team1.seed}` : "—";
       const seed2 = match.team2.seed ? `#${match.team2.seed}` : "—";
 
-      let statusBadge = `<span class="mc-status-badge completed">✔ COMPLETED</span>`;
-      if (match.status === "upcoming") {
-        statusBadge = `<span class="mc-status-badge upcoming">UPCOMING</span>`;
-      } else if (match.status === "live") {
-        statusBadge = `<span class="mc-status-badge live">● LIVE</span>`;
-      }
+      const schedDisp = formatScheduleDate(match.rawScheduled, STATE.useLocalTime);
+
+      const statusBadge = getMatchStatusBadgeHTML(match.status);
 
       const qualBadge = match.isQualifier
         ? `<span class="mc-qualifier-badge">★ QUALIFIER</span>`
@@ -2265,7 +2371,7 @@
               <span class="mc-bracket-id">${escapeHtml(match.bracketId)}</span>
               ${qualBadge}
             </div>
-            <span class="mc-time">${escapeHtml(match.scheduled)}</span>
+            <span class="mc-time">${escapeHtml(schedDisp)}</span>
             ${statusBadge}
           </div>
           <div class="mc-team-row slot-1 ${t1Win ? "winner" : ""}">
@@ -2533,33 +2639,41 @@
 
       const allCards = document.querySelectorAll(".match-card");
 
-      allCards.forEach(card => {
-        card.addEventListener("mouseenter", e => {
-          const bid = card.getAttribute("data-bracket-id");
-          const match = matchByBracket.get(bid);
-          if (!match) return;
+      const activateMatchCard = (card, e) => {
+        if (Date.now() < ignoreHoverUntil) return;
+        const bid = card.getAttribute("data-bracket-id");
+        const match = matchByBracket.get(bid);
+        if (!match) return;
 
-          const lineage = computeLineageForMatch(match, STATE.data.matches);
+        const lineage = computeLineageForMatch(match, STATE.data.matches);
 
-          // Highlight both slots on the hovered card with indicator bars & background tints
-          const slot1 = card.querySelector(".mc-team-row.slot-1");
-          const slot2 = card.querySelector(".mc-team-row.slot-2");
-          if (slot1) slot1.classList.add("active-hover-t1");
-          if (slot2) slot2.classList.add("active-hover-t2");
+        allCards.forEach(other => {
+          other.classList.remove("trace-team1", "trace-team2");
+          const s1 = other.querySelector(".mc-team-row.slot-1");
+          const s2 = other.querySelector(".mc-team-row.slot-2");
+          if (s1) s1.classList.remove("active-hover-t1");
+          if (s2) s2.classList.remove("active-hover-t2");
 
-          allCards.forEach(other => {
-            const obid = other.getAttribute("data-bracket-id");
-            other.classList.remove("trace-team1", "trace-team2");
-            if (lineage.team1Matches.has(obid)) {
-              other.classList.add("trace-team1");
-            } else if (lineage.team2Matches.has(obid)) {
-              other.classList.add("trace-team2");
-            }
-          });
-
-          drawAllBracketConnectors(lineage);
-          showMatchPopover(match, e.clientX, e.clientY);
+          const obid = other.getAttribute("data-bracket-id");
+          if (lineage.team1Matches.has(obid)) {
+            other.classList.add("trace-team1");
+          } else if (lineage.team2Matches.has(obid)) {
+            other.classList.add("trace-team2");
+          }
         });
+
+        const slot1 = card.querySelector(".mc-team-row.slot-1");
+        const slot2 = card.querySelector(".mc-team-row.slot-2");
+        if (slot1) slot1.classList.add("active-hover-t1");
+        if (slot2) slot2.classList.add("active-hover-t2");
+
+        drawAllBracketConnectors(lineage);
+        showMatchPopover(match, e.clientX, e.clientY);
+      };
+
+      allCards.forEach(card => {
+        card.addEventListener("mouseenter", e => activateMatchCard(card, e));
+        card.addEventListener("click", e => activateMatchCard(card, e));
 
         card.addEventListener("mousemove", e => {
           positionPopover(e.clientX, e.clientY);
@@ -2637,12 +2751,7 @@
             pillPrefix = "★ ";
           }
 
-          let statusBadge = `<span class="mc-status-badge completed">✔ COMPLETED</span>`;
-          if (m.status === "upcoming") {
-            statusBadge = `<span class="mc-status-badge upcoming">UPCOMING</span>`;
-          } else if (m.status === "live") {
-            statusBadge = `<span class="mc-status-badge live">● LIVE</span>`;
-          }
+          const statusBadge = getMatchStatusBadgeHTML(m.status);
 
           return `
             <tr>
@@ -2650,7 +2759,7 @@
               <td class="col-bracket">
                 <span class="bracket-round-pill ${pillClass}">${pillPrefix}${escapeHtml(m.bracketId)}</span>
               </td>
-              <td class="col-sched">${m.scheduledTableHTML}</td>
+              <td class="col-sched">${formatScheduleTableHTML(m.rawScheduled, STATE.useLocalTime)}</td>
               <td class="col-team1">
                 <div class="table-team-wrap">
                   <span class="seed-pill ${!m.team1.seed ? 'empty' : ''}">${s1Badge}</span>
@@ -2724,13 +2833,17 @@
         .join("");
 
       const cards = grid.querySelectorAll(".team-card");
+      const activateTeamCard = (card, e) => {
+        if (Date.now() < ignoreHoverUntil) return;
+        const teamName = card.getAttribute("data-team-name");
+        const st = teamStatusMap.get(teamName);
+        if (!st) return;
+        showTeamJourneyPopover(teamName, st.journey, e.clientX, e.clientY);
+      };
+
       cards.forEach(card => {
-        card.addEventListener("mouseenter", e => {
-          const teamName = card.getAttribute("data-team-name");
-          const st = teamStatusMap.get(teamName);
-          if (!st) return;
-          showTeamJourneyPopover(teamName, st.journey, e.clientX, e.clientY);
-        });
+        card.addEventListener("mouseenter", e => activateTeamCard(card, e));
+        card.addEventListener("click", e => activateTeamCard(card, e));
         card.addEventListener("mousemove", e => {
           positionPopover(e.clientX, e.clientY);
         });
@@ -2744,6 +2857,7 @@
        8. POPOVER TOOLTIP ENGINE (COLLISION DETECTION)
        ============================================================ */
     const popoverEl = document.getElementById("floatingPopover");
+    let ignoreHoverUntil = 0;
 
     function showMatchPopover(match, clientX, clientY) {
       const t1Players =
@@ -2757,10 +2871,13 @@
 
       const boFormat = match.bestOf ? (match.bestOf.startsWith("BO") ? match.bestOf : `BO${match.bestOf}`) : "BO5";
 
+      const schedParts = parseScheduleParts(match.rawScheduled, STATE.useLocalTime);
+      const timeDisp = schedParts ? schedParts.timeText : match.timeOnly;
+
       popoverEl.innerHTML = `
         <div class="popover-header">
           <span class="popover-title">👥 Rosters</span>
-          <span class="popover-meta">${escapeHtml(match.bracketId)} • ${escapeHtml(match.timeOnly)}<span class="popover-close-hint">✕</span></span>
+          <span class="popover-meta">${escapeHtml(match.bracketId)} • ${escapeHtml(timeDisp)}<span class="popover-close-hint">✕</span></span>
         </div>
         <div class="popover-team-block">
           <div class="popover-team-name team1">${escapeHtml(match.team1.name)}</div>
@@ -2788,15 +2905,19 @@
           // Check if match has actually completed with a verified winner
           const isDone = m.status === "completed" && Boolean(m.winnerName);
 
-          let pillClass = "upcoming";
-          let labelText = "UPCOMING";
+          let pillHTML = `<span class="journey-result-pill upcoming">UPCOMING</span>`;
 
-          if (isDone) {
+          if (m.status === "live") {
+            pillHTML = `<a class="journey-result-pill live" href="${escapeHtml(CONFIG.twitchUrl)}" target="_blank" rel="noopener noreferrer" title="Watch Live on Twitch" onclick="event.stopPropagation()">● LIVE</a>`;
+          } else if (m.status === "ongoing") {
+            pillHTML = `<span class="journey-result-pill ongoing">● ONGOING</span>`;
+          } else if (isDone) {
             const isWin = m.winnerName === teamName;
-            pillClass = isWin ? "win" : "loss";
+            const pillClass = isWin ? "win" : "loss";
             const hasScores = myScore !== "" && oppScore !== "";
             const scoreLabel = hasScores ? `(${myScore}-${oppScore})` : "";
-            labelText = `${isWin ? "WIN" : "LOSS"} ${scoreLabel}`.trim();
+            const labelText = `${isWin ? "WIN" : "LOSS"} ${scoreLabel}`.trim();
+            pillHTML = `<span class="journey-result-pill ${pillClass}">${escapeHtml(labelText)}</span>`;
           }
 
           return `
@@ -2806,9 +2927,7 @@
                 <span class="journey-vs-label">vs</span>
                 <span class="journey-opp-name">${oppHTML}</span>
               </div>
-              <span class="journey-result-pill ${pillClass}">
-                ${escapeHtml(labelText)}
-              </span>
+              ${pillHTML}
             </div>
           `;
         })
@@ -2854,12 +2973,13 @@
 
     function escapeHtml(str) {
       return String(str ?? "")
-        .replace(/&/g, "&")
-        .replace(/</g, "<")
-        .replace(/>/g, ">")
-        .replace(/"/g, '"') 
-        .replace(/'/g, "'");
+        .replace(/&/g, "\u0026amp;")
+        .replace(/</g, "\u0026lt;")
+        .replace(/>/g, "\u0026gt;")
+        .replace(/"/g, "\u0026quot;")
+        .replace(/'/g, "\u0026#39;");
     }
+
     /* ============================================================
        9. DATA FETCHING, CACHING & INITIALIZATION
        ============================================================ */
@@ -2872,6 +2992,10 @@
     let pollTimerId = null;
 
     function applyParsedData(csvText) {
+      const bracketScrolls = Array.from(document.querySelectorAll(".bracket-scroll-wrap")).map(el => el.scrollLeft);
+      const tableCard = document.querySelector(".match-table-card");
+      const tableScroll = tableCard ? tableCard.scrollLeft : 0;
+
       const parsed = parseTournamentCSV(csvText);
       lastRawCsvText = csvText;
       STATE.data = parsed;
@@ -2881,6 +3005,13 @@
       renderBrackets(parsed);
       renderMatchList(parsed);
       renderRostersAndStandings(parsed, teamStatusMap);
+
+      document.querySelectorAll(".bracket-scroll-wrap").forEach((el, idx) => {
+        if (bracketScrolls[idx]) el.scrollLeft = bracketScrolls[idx];
+      });
+      if (tableCard && tableScroll) {
+        tableCard.scrollLeft = tableScroll;
+      }
     }
 
     function showFetchErrorBanner(isCachedFallback) {
@@ -2994,36 +3125,60 @@
       } catch (_) {}
       applyTheme(initialTheme);
 
-      // Tab switching
+      // Tab switching + URL hash routing (#bracket, #matches, #rosters)
       const tabBtns = document.querySelectorAll(".tab-btn");
       const topBanner = document.getElementById("topQualBanner");
+      const validTabs = new Set(["bracket", "matches", "rosters"]);
+
+      const activateTab = (target, updateHash = true) => {
+        if (!validTabs.has(target)) target = "bracket";
+        STATE.activeTab = target;
+
+        tabBtns.forEach(b => {
+          const isAct = b.getAttribute("data-tab") === target;
+          b.classList.toggle("active", isAct);
+          b.setAttribute("aria-selected", String(isAct));
+        });
+
+        document.querySelectorAll(".tab-pane").forEach(pane => {
+          pane.classList.toggle("active", pane.id === `tab-${target}`);
+        });
+
+        if (target === "matches") {
+          topBanner.classList.add("hidden");
+        } else {
+          topBanner.classList.remove("hidden");
+        }
+
+        if (updateHash && window.location.hash !== `#${target}`) {
+          history.replaceState(null, "", `#${target}`);
+        }
+
+        hidePopover();
+        if (target === "bracket") {
+          requestAnimationFrame(() => drawAllBracketConnectors());
+        }
+      };
 
       tabBtns.forEach(btn => {
         btn.addEventListener("click", () => {
-          const target = btn.getAttribute("data-tab");
-          STATE.activeTab = target;
-
-          tabBtns.forEach(b => {
-            const isAct = b === btn;
-            b.classList.toggle("active", isAct);
-            b.setAttribute("aria-selected", String(isAct));
-          });
-
-          document.querySelectorAll(".tab-pane").forEach(pane => {
-            pane.classList.toggle("active", pane.id === `tab-${target}`);
-          });
-
-          if (target === "matches") {
-            topBanner.classList.add("hidden");
-          } else {
-            topBanner.classList.remove("hidden");
-          }
-
-          hidePopover();
-          if (target === "bracket") {
-            requestAnimationFrame(() => drawAllBracketConnectors());
-          }
+          activateTab(btn.getAttribute("data-tab"), true);
         });
+      });
+
+      window.addEventListener("hashchange", () => {
+        const hashTab = window.location.hash.replace("#", "").toLowerCase();
+        if (validTabs.has(hashTab)) activateTab(hashTab, false);
+      });
+
+      const initialHash = window.location.hash.replace("#", "").toLowerCase();
+      if (validTabs.has(initialHash)) {
+        activateTab(initialHash, false);
+      }
+
+      // Close popover with Escape key on desktop
+      document.addEventListener("keydown", e => {
+        if (e.key === "Escape") hidePopover();
       });
 
       // Theme toggle
@@ -3056,6 +3211,38 @@
         if (STATE.data) renderMatchList(STATE.data);
       });
 
+      // Timezone toggle (Viewer's Local Time <-> Official CET)
+      const tzToggleBtn = document.getElementById("tzToggleBtn");
+      const updateTzToggleLabel = () => {
+        if (!tzToggleBtn) return;
+        tzToggleBtn.classList.toggle("is-local", STATE.useLocalTime);
+
+        if (STATE.useLocalTime) {
+          let tzLabel = "LOCAL";
+          try {
+            const part = new Intl.DateTimeFormat(undefined, { timeZoneName: "short" })
+              .formatToParts(new Date())
+              .find(p => p.type === "timeZoneName");
+            if (part && part.value) tzLabel = part.value;
+          } catch (_) {}
+          tzToggleBtn.textContent = `SCHEDULED (${tzLabel}) ⇄`;
+        } else {
+          tzToggleBtn.textContent = "SCHEDULED (CET) ⇄";
+        }
+      };
+
+      if (tzToggleBtn) {
+        updateTzToggleLabel();
+        tzToggleBtn.addEventListener("click", () => {
+          STATE.useLocalTime = !STATE.useLocalTime;
+          updateTzToggleLabel();
+          if (STATE.data) {
+            renderMatchList(STATE.data);
+            renderBrackets(STATE.data);
+          }
+        });
+      }
+
       // Pause polling when tab is hidden; refresh immediately upon return
       document.addEventListener("visibilitychange", () => {
         if (document.hidden) {
@@ -3080,9 +3267,27 @@
       startPolling();
     });
 
+    // Dismiss open popover cleanly on mobile tap without triggering cards underneath
+    const dismissPopoverFromTap = e => {
+      if (e.target.closest("a")) return;
+      if (!popoverEl.classList.contains("visible")) return;
+      e.preventDefault();
+      e.stopPropagation();
+      ignoreHoverUntil = Date.now() + 400;
+      hidePopover();
+    };
+
+    popoverEl.addEventListener("touchend", dismissPopoverFromTap, { passive: false });
+    popoverEl.addEventListener("click", dismissPopoverFromTap);
+
     // Close floating popovers when tapping outside cards on touch devices
     document.addEventListener("click", e => {
-      if (!e.target.closest(".match-card") && !e.target.closest(".team-card")) {
+      if (
+        popoverEl.classList.contains("visible") &&
+        !e.target.closest(".match-card") &&
+        !e.target.closest(".team-card")
+      ) {
+        ignoreHoverUntil = Date.now() + 400;
         hidePopover();
       }
     });
