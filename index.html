@@ -855,7 +855,7 @@
 
     .match-table {
       width: 100%;
-      min-width: 900px;
+      min-width: 1040px;
       border-collapse: collapse;
       table-layout: fixed;
     }
@@ -893,10 +893,13 @@
 
     .col-id {
       width: 100px;
+      color: var(--muted);
+    }
+
+    td.col-id {
       font-family: "JetBrains Mono", monospace;
       font-weight: 400;
       font-size: 11.5px;
-      color: var(--muted);
     }
 
     .col-bracket {
@@ -904,21 +907,28 @@
     }
 
     .col-sched {
-      width: 150px;
+      width: 155px;
       color: var(--muted);
       font-size: 12px;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .sched-sep {
+      margin: 0 5px;
+      opacity: 0.45;
     }
 
     .col-team1 {
+      width: 185px;
       text-align: right !important;
       padding-right: 16px !important;
-      min-width: 170px;
     }
 
     .col-team2 {
+      width: 185px;
       text-align: left !important;
       padding-left: 16px !important;
-      min-width: 170px;
     }
 
     .col-s1,
@@ -953,11 +963,15 @@
       display: inline-flex;
       align-items: center;
       gap: 7px;
+      max-width: 100%;
     }
 
     .table-team-name {
       color: var(--muted);
       font-weight: 400;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .table-team-name.winner {
@@ -1146,7 +1160,9 @@
     .floating-popover.visible {
       opacity: 1;
       visibility: visible;
-    }
+      pointer-events: auto;
+      cursor: pointer;
+    } 
 
     .popover-header {
       display: flex;
@@ -1201,6 +1217,18 @@
     .popover-roster-line {
       font-size: 11px;
       color: var(--muted);
+    }
+
+    .popover-close-hint {
+      margin-left: 6px;
+      opacity: 0.65;
+      font-weight: 700;
+    }
+
+    @media (hover: hover) {
+      .popover-close-hint {
+        display: none;
+      }
     }
 
     /* Journey Popover list */
@@ -1403,6 +1431,41 @@
       color: #94a3b8;
     }
 
+    /* ============================================================
+       FOOTER
+       ============================================================ */
+    .site-footer {
+      margin-top: 40px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--text);
+      text-decoration: underline;
+    }
+
   </style>
 </head>
 <body>
@@ -1425,7 +1488,17 @@
             <span>Bracket View</span>
           </button>
           <button class="tab-btn" data-tab="matches" role="tab" aria-selected="false">
-            <span id="matchListTabLabel">Match List (26)</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline>
+              <line x1="13" y1="19" x2="19" y2="13"></line>
+              <line x1="16" y1="16" x2="20" y2="20"></line>
+              <line x1="19" y1="21" x2="21" y2="19"></line>
+              <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"></polyline>
+              <line x1="5" y1="14" x2="9" y2="18"></line>
+              <line x1="7" y1="17" x2="4" y2="20"></line>
+              <line x1="3" y1="19" x2="5" y2="21"></line>
+            </svg>
+            <span>Match List</span>
           </button>
           <button class="tab-btn" data-tab="rosters" role="tab" aria-selected="false">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
@@ -1527,7 +1600,7 @@
             <tr>
               <th class="col-id">MATCH ID</th>
               <th class="col-bracket">ROUND / BRACKET</th>
-              <th class="col-sched">SCHEDULED</th>
+              <th class="col-sched">SCHEDULED (CET)</th>
               <th class="col-team1">TEAM 1</th>
               <th class="col-s1">S1</th>
               <th class="col-vs">VS</th>
@@ -1549,9 +1622,19 @@
       </div>
       <div class="rosters-grid" id="rostersGrid"></div>
     </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      <div>2026 OverDrive Wildcard • Auto-updates every 45s • ❤️ lava</div>
+      <div class="footer-links">
+        <a href="https://www.twitch.tv/overdrive_tm" target="_blank" rel="noopener noreferrer">Twitch</a>
+        <a href="https://discord.gg/tZV3Mu3Thb" target="_blank" rel="noopener noreferrer">Discord</a>
+        <!-- <a href="https://x.com/YOUR_HANDLE" target="_blank" rel="noopener noreferrer">X</a> -->
+      </div>
+    </footer>
   </div>
 
-  <!-- FLOATING POPOVER -->
+    <!-- FLOATING POPOVER -->
   <div class="floating-popover" id="floatingPopover"></div>
 
   <script>
@@ -1641,38 +1724,86 @@
       return `<img class="team-logo" src="${src}" alt="" loading="lazy" onerror="this.style.display='none'" />`;
     }
 
-    function formatScheduleDate(raw) {
-      if (!raw) return "";
+    function parseScheduleParts(raw) {
+      if (!raw) return null;
       const str = String(raw).trim();
-      if (/^[A-Z][a-z]{2}-\d{2}\s+\d{2}:\d{2}$/.test(str)) {
-        return str;
-      }
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      const isoMatch = str.match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})[T\s]+(\d{1,2}):(\d{2})/);
+      const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+      // 1. Match MM/DD/YYYY HH:MM(:SS) — Google Sheets default export (e.g., "04/07/2026 17:00:00")
+      const mdyYearMatch = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::\d{2})?$/);
+      if (mdyYearMatch) {
+        const monthIdx = parseInt(mdyYearMatch[1], 10) - 1;
+        const day = parseInt(mdyYearMatch[2], 10);
+        const year = parseInt(mdyYearMatch[3], 10);
+        const hh = String(mdyYearMatch[4]).padStart(2, "0");
+        const mm = String(mdyYearMatch[5]).padStart(2, "0");
+        if (months[monthIdx]) {
+          const dt = new Date(year, monthIdx, day);
+          const weekday = !isNaN(dt.getTime()) ? days[dt.getDay()] : "";
+          return {
+            weekday,
+            dateText: `${months[monthIdx]} ${day}`,
+            timeText: `${hh}:${mm}`
+          };
+        }
+      }
+
+      // 2. Match YYYY-MM-DD HH:MM(:SS)
+      const isoMatch = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})[T\s]+(\d{1,2}):(\d{2})(?::\d{2})?$/);
       if (isoMatch) {
-        const m = parseInt(isoMatch[2], 10) - 1;
-        const d = String(isoMatch[3]).padStart(2, "0");
+        const year = parseInt(isoMatch[1], 10);
+        const monthIdx = parseInt(isoMatch[2], 10) - 1;
+        const day = parseInt(isoMatch[3], 10);
         const hh = String(isoMatch[4]).padStart(2, "0");
         const mm = String(isoMatch[5]).padStart(2, "0");
-        if (months[m]) return `${months[m]}-${d} ${hh}:${mm}`;
+        if (months[monthIdx]) {
+          const dt = new Date(year, monthIdx, day);
+          const weekday = !isNaN(dt.getTime()) ? days[dt.getDay()] : "";
+          return {
+            weekday,
+            dateText: `${months[monthIdx]} ${day}`,
+            timeText: `${hh}:${mm}`
+          };
+        }
       }
-      const textMatch = str.match(/([A-Za-z]{3})[a-z]*[\s\-/,]+(\d{1,2})(?:[\s,]+(?:\d{4})?)?\s+(\d{1,2}):(\d{2})/);
-      if (textMatch) {
-        const mName = textMatch[1].charAt(0).toUpperCase() + textMatch[1].slice(1, 3).toLowerCase();
-        const d = String(textMatch[2]).padStart(2, "0");
-        const hh = String(textMatch[3]).padStart(2, "0");
-        const mm = String(textMatch[4]).padStart(2, "0");
-        return `${mName}-${d} ${hh}:${mm}`;
+
+      // 3. Match short DD/MM HH:MM(:SS)
+      const dmyMatch = str.match(/^(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})(?::\d{2})?$/);
+      if (dmyMatch) {
+        const day = parseInt(dmyMatch[1], 10);
+        const monthIdx = parseInt(dmyMatch[2], 10) - 1;
+        const hh = String(dmyMatch[3]).padStart(2, "0");
+        const mm = String(dmyMatch[4]).padStart(2, "0");
+        if (months[monthIdx]) {
+          const dt = new Date(2026, monthIdx, day);
+          const weekday = !isNaN(dt.getTime()) ? days[dt.getDay()] : "";
+          return {
+            weekday,
+            dateText: `${months[monthIdx]} ${day}`,
+            timeText: `${hh}:${mm}`
+          };
+        }
       }
-      const parsed = new Date(str);
-      if (!isNaN(parsed.getTime())) {
-        const m = months[parsed.getMonth()];
-        const d = String(parsed.getDate()).padStart(2, "0");
-        const hh = String(parsed.getHours()).padStart(2, "0");
-        const mm = String(parsed.getMinutes()).padStart(2, "0");
-        return `${m}-${d} ${hh}:${mm}`;
+
+      return null;
+    }
+
+    function formatScheduleDate(raw) {
+      const parts = parseScheduleParts(raw);
+      if (parts) {
+        return `${parts.dateText} • ${parts.timeText}`;
       }
-      return str;
+      return String(raw || "").trim();
+    }
+
+    function formatScheduleTableHTML(raw) {
+      const parts = parseScheduleParts(raw);
+      if (parts) {
+        const fullDate = parts.weekday ? `${parts.weekday}, ${parts.dateText}` : parts.dateText;
+        return `<span>${escapeHtml(fullDate)}</span><span class="sched-sep">•</span><span class="sched-time">${escapeHtml(parts.timeText)}</span>`;
+      }
+      return escapeHtml(String(raw || "").trim());
     }
 
     function formatPlaceholderHTML(name) {
@@ -1887,7 +2018,15 @@
           continue;
         }
 
-        const scheduled = formatScheduleDate(r[34] || "");
+        const rawScheduled = (r[34] || "").trim();
+        const schedParts = parseScheduleParts(rawScheduled);
+        const scheduled = schedParts
+          ? `${schedParts.dateText} • ${schedParts.timeText}`
+          : rawScheduled;
+        const scheduledTableHTML = formatScheduleTableHTML(rawScheduled);
+        const timeOnly = schedParts
+          ? schedParts.timeText
+          : (rawScheduled.split(" ")[1] || "").trim();
 
         // Resolve Team 1 & Team 2 from AJ:AM (35..38)
         const t1Cand = resolveTeam(r[36]) || resolveTeam(r[35]);
@@ -1939,7 +2078,8 @@
           isQualifier,
           roundShort,
           scheduled,
-          timeOnly: (scheduled.split(" ")[1] || "").trim(),
+          scheduledTableHTML,
+          timeOnly,
           team1,
           team2,
           score1,
@@ -2443,7 +2583,6 @@
        6. TAB B: MATCH LIST RENDERING & FILTERING
        ============================================================ */
     function renderMatchList(data) {
-      document.getElementById("matchListTabLabel").textContent = `Match List (${data.matches.length})`;
       const allBtn = document.querySelector('#matchFilterPills [data-filter="all"]');
       if (allBtn) allBtn.textContent = `All Active (${data.matches.length})`;
 
@@ -2511,7 +2650,7 @@
               <td class="col-bracket">
                 <span class="bracket-round-pill ${pillClass}">${pillPrefix}${escapeHtml(m.bracketId)}</span>
               </td>
-              <td class="col-sched">${escapeHtml(m.scheduled)}</td>
+              <td class="col-sched">${m.scheduledTableHTML}</td>
               <td class="col-team1">
                 <div class="table-team-wrap">
                   <span class="seed-pill ${!m.team1.seed ? 'empty' : ''}">${s1Badge}</span>
@@ -2621,7 +2760,7 @@
       popoverEl.innerHTML = `
         <div class="popover-header">
           <span class="popover-title">👥 Rosters</span>
-          <span class="popover-meta">${escapeHtml(match.bracketId)} • ${escapeHtml(match.timeOnly)}</span>
+          <span class="popover-meta">${escapeHtml(match.bracketId)} • ${escapeHtml(match.timeOnly)}<span class="popover-close-hint">✕</span></span>
         </div>
         <div class="popover-team-block">
           <div class="popover-team-name team1">${escapeHtml(match.team1.name)}</div>
@@ -2678,7 +2817,7 @@
       popoverEl.innerHTML = `
         <div class="popover-header">
           <span class="popover-title">${escapeHtml(teamName)}</span>
-          <span class="popover-meta">Journey (${journeyMatches.length} Matches)</span>
+          <span class="popover-meta">Journey (${journeyMatches.length} Matches)<span class="popover-close-hint">✕</span></span>
         </div>
         <div class="journey-list">${rowsHtml}</div>
       `;
