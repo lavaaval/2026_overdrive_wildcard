@@ -957,7 +957,7 @@
     .sched-toggle-btn {
       background: transparent;
       border: none;
-      padding: 0;
+      padding: 0 0 1px 0;
       font-family: inherit;
       font-size: 10px;
       font-weight: 700;
@@ -968,10 +968,16 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      transition: color 0.15s ease;
+      transition: color 0.15s ease, border-color 0.15s ease;
     }
 
-    .sched-toggle-btn:hover {
+    @media (hover: hover) {
+      .sched-toggle-btn:hover {
+        color: var(--text);
+      }
+    }
+
+    .sched-toggle-btn:active {
       color: var(--text);
     }
 
@@ -1652,7 +1658,7 @@
       <div class="match-list-controls">
         <div class="filter-pills" id="matchFilterPills">
           <button class="filter-pill active" data-filter="all">All Active (26)</button>
-          <button class="filter-pill" data-filter="live">LIVE</button>
+          <button class="filter-pill" data-filter="live">LIVE / Ongoing</button>
           <button class="filter-pill" data-filter="upcoming">Upcoming</button>
           <button class="filter-pill" data-filter="completed">Completed</button>
           <button class="filter-pill" data-filter="upper">Upper Bracket</button>
@@ -1718,6 +1724,7 @@
        ============================================================ */
     const CONFIG = {
       csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD2Um71alwYDoejxYV15ud9NZLq8E0re8efnSUDkw5M-HN_ApEd9KOmVhuiwEm0bzPdmdQbeHw0NgC/pub?gid=0&single=true&output=csv",
+      mockCsvUrl: "test-data.csv",
       refreshIntervalMs: 45000,
       twitchUrl: "https://www.twitch.tv/overdrive_tm"
     };
@@ -2128,6 +2135,10 @@
         // Col AR (43) = score_team1
         // Col AS (44) = score_team2
         // Col AT (45) = winner_id
+        const bInfo = bracketMap.get(bracketId) || {};
+        const bestOf = (r[41] || bInfo.format || "BO5").trim(); // Reads Col AP (best_of)
+        const winsNeeded = Math.ceil((parseInt(bestOf.replace(/\D/g, ""), 10) || 5) / 2);
+
         const score1 = String(r[43] ?? "").trim();
         const score2 = String(r[44] ?? "").trim();
 
@@ -2136,12 +2147,19 @@
         if (rawWinner) {
           const wTeam = resolveTeam(rawWinner);
           winnerName = wTeam ? wTeam.name : rawWinner;
-        } else if (score1 !== "" && score2 !== "") {
-          if (score1 === "W" || Number(score1) > Number(score2)) winnerName = team1.name;
-          else if (score2 === "W" || Number(score2) > Number(score1)) winnerName = team2.name;
+        } else if (score1 !== "" || score2 !== "") {
+          const s1Upper = score1.toUpperCase();
+          const s2Upper = score2.toUpperCase();
+          const n1 = Number(score1);
+          const n2 = Number(score2);
+
+          if (s1Upper === "W" || (!Number.isNaN(n1) && n1 >= winsNeeded && (Number.isNaN(n2) || n1 > n2))) {
+            winnerName = team1.name;
+          } else if (s2Upper === "W" || (!Number.isNaN(n2) && n2 >= winsNeeded && (Number.isNaN(n1) || n2 > n1))) {
+            winnerName = team2.name;
+          }
         }
 
-        const bInfo = bracketMap.get(bracketId) || {};
         const isUpper = bracketId.includes("_UB");
         const isQualifier = QUALIFIER_BRACKET_IDS.has(bracketId);
 
@@ -2152,11 +2170,13 @@
         }
 
         let normStatus = "completed";
-        if (/\blive\b/i.test(statusRaw)) {
+        if (winnerName) {
+          normStatus = "completed";
+        } else if (/\blive\b/i.test(statusRaw)) {
           normStatus = "live";
         } else if (/ongoing|in[\s_-]?progress|playing/i.test(statusRaw)) {
           normStatus = "ongoing";
-        } else if (/upcoming|pending|scheduled/i.test(statusRaw) || (!winnerName && !score1 && !score2)) {
+        } else if (/upcoming|pending|scheduled/i.test(statusRaw) || (!score1 && !score2)) {
           normStatus = "upcoming";
         }
 
@@ -2176,7 +2196,7 @@
           score2,
           winnerName,
           status: normStatus,
-          bestOf: (r[41] || bInfo.format || "BO5").trim() // Reads Col AP (best_of)
+          bestOf
         });
       }
 
@@ -2587,8 +2607,9 @@
     }
 
     function computeLineageForMatch(targetMatch, allMatches) {
-      const t1Name = targetMatch.team1.name;
-      const t2Name = targetMatch.team2.name;
+      const isTraceable = name => Boolean(name) && !/^(tbd|bye|-)$/i.test(name.trim());
+      const t1Name = isTraceable(targetMatch.team1.name) ? targetMatch.team1.name : "";
+      const t2Name = isTraceable(targetMatch.team2.name) ? targetMatch.team2.name : "";
 
       const targetIndex = allMatches.findIndex(m => m.matchId === targetMatch.matchId);
       const priorMatches = targetIndex >= 0 ? allMatches.slice(0, targetIndex) : allMatches;
@@ -2597,10 +2618,10 @@
       const team2Matches = new Set();
 
       priorMatches.forEach(m => {
-        if (m.team1.name === t1Name || m.team2.name === t1Name) {
+        if (t1Name && (m.team1.name === t1Name || m.team2.name === t1Name)) {
           team1Matches.add(m.bracketId);
         }
-        if (m.team1.name === t2Name || m.team2.name === t2Name) {
+        if (t2Name && (m.team1.name === t2Name || m.team2.name === t2Name)) {
           team2Matches.add(m.bracketId);
         }
       });
@@ -2638,6 +2659,16 @@
 
       const allCards = document.querySelectorAll(".match-card");
 
+      const clearAllTraces = () => {
+        allCards.forEach(other => {
+          other.classList.remove("trace-team1", "trace-team2");
+          const s1 = other.querySelector(".mc-team-row.slot-1");
+          const s2 = other.querySelector(".mc-team-row.slot-2");
+          if (s1) s1.classList.remove("active-hover-t1", "active-hover-t2");
+          if (s2) s2.classList.remove("active-hover-t1", "active-hover-t2");
+        });
+      };
+
       const activateMatchCard = (card, e) => {
         if (Date.now() < ignoreHoverUntil) return;
         const bid = card.getAttribute("data-bracket-id");
@@ -2645,19 +2676,26 @@
         if (!match) return;
 
         const lineage = computeLineageForMatch(match, STATE.data.matches);
+        clearAllTraces();
 
         allCards.forEach(other => {
-          other.classList.remove("trace-team1", "trace-team2");
+          const obid = other.getAttribute("data-bracket-id");
+          const otherMatch = matchByBracket.get(obid);
           const s1 = other.querySelector(".mc-team-row.slot-1");
           const s2 = other.querySelector(".mc-team-row.slot-2");
-          if (s1) s1.classList.remove("active-hover-t1");
-          if (s2) s2.classList.remove("active-hover-t2");
 
-          const obid = other.getAttribute("data-bracket-id");
           if (lineage.team1Matches.has(obid)) {
             other.classList.add("trace-team1");
+            if (otherMatch) {
+              if (otherMatch.team1.name === match.team1.name && s1) s1.classList.add("active-hover-t1");
+              if (otherMatch.team2.name === match.team1.name && s2) s2.classList.add("active-hover-t1");
+            }
           } else if (lineage.team2Matches.has(obid)) {
             other.classList.add("trace-team2");
+            if (otherMatch) {
+              if (otherMatch.team1.name === match.team2.name && s1) s1.classList.add("active-hover-t2");
+              if (otherMatch.team2.name === match.team2.name && s2) s2.classList.add("active-hover-t2");
+            }
           }
         });
 
@@ -2679,13 +2717,7 @@
         });
 
         card.addEventListener("mouseleave", () => {
-          allCards.forEach(other => {
-            other.classList.remove("trace-team1", "trace-team2");
-            const s1 = other.querySelector(".mc-team-row.slot-1");
-            const s2 = other.querySelector(".mc-team-row.slot-2");
-            if (s1) s1.classList.remove("active-hover-t1");
-            if (s2) s2.classList.remove("active-hover-t2");
-          });
+          clearAllTraces();
           drawAllBracketConnectors(null);
           hidePopover();
         });
@@ -2703,7 +2735,7 @@
       const filter = STATE.matchFilter;
 
       const filtered = data.matches.filter(m => {
-        if (filter === "live" && m.status !== "live") return false;
+        if (filter === "live" && m.status !== "live" && m.status !== "ongoing") return false;
         if (filter === "upcoming" && m.status !== "upcoming") return false;
         if (filter === "completed" && m.status !== "completed") return false;
         if (filter === "upper" && !m.isUpper) return false;
@@ -3048,7 +3080,10 @@
       if (!force && document.hidden) return;
 
       try {
-        const endpoint = `${CONFIG.csvUrl}&_t=${Date.now()}`;
+        const isMockMode = new URLSearchParams(window.location.search).get("mock") === "1";
+        const activeCsvUrl = isMockMode ? CONFIG.mockCsvUrl : CONFIG.csvUrl;
+        const separator = activeCsvUrl.includes("?") ? "&" : "?";
+        const endpoint = `${activeCsvUrl}${separator}_t=${Date.now()}`;
         const response = await fetch(endpoint, { cache: "no-store" });
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
@@ -3112,6 +3147,10 @@
     }
 
     function setupUIEvents() {
+      if (new URLSearchParams(window.location.search).get("mock") === "1") {
+        document.title = "[MOCK] " + document.title;
+      }
+
       // Restore saved theme or respect OS preference
       let initialTheme = "light";
       try {
