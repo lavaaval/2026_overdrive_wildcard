@@ -7,6 +7,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="logos/Overdrive.png" />
+  <meta property="og:title" content="2026 OverDrive Wildcard — Live Bracket & Standings" />
+  <meta property="og:description" content="Live double-elimination bracket, match schedule, and team rosters for the 2026 OverDrive Wildcard." />
+  <meta name="theme-color" content="#0f172a" />
   <style>
     /* Ensure crisp color flag rendering across Windows/macOS/Linux */
     @font-face {
@@ -291,6 +296,38 @@
       display: none;
     }
 
+    .data-error-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      border-radius: 8px;
+      background: var(--elim-bg);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: var(--elim-text);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .data-error-retry {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 4px 10px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .data-error-retry:hover {
+      border-color: var(--muted);
+    }
+
     .banner-header {
       display: flex;
       align-items: center;
@@ -421,6 +458,12 @@
       flex-shrink: 0;
     }
 
+    /* Soften the badge when no team/seed is confirmed yet */
+    .seed-pill.empty {
+      opacity: 0.55;
+      border-style: dashed; /* Optional: gives a clean structural placeholder look */
+    }
+
     .qual-slot-card.qualified .seed-pill {
       background: rgba(16, 185, 129, 0.14);
       border-color: rgba(16, 185, 129, 0.3);
@@ -497,15 +540,16 @@
     .bracket-scroll-wrap {
       width: 100%;
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling on iOS */
       padding-bottom: 8px;
     }
 
     .bracket-canvas {
       position: relative;
       display: flex;
-      justify-content: center;
+      justify-content: flex-start;
       gap: 56px;
-      min-width: 780px;
+      width: max-content;
       margin: 0 auto;
     }
 
@@ -804,11 +848,14 @@
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 10px;
-      overflow: hidden;
+      overflow-x: auto;                  /* Enables horizontal scrolling */
+      -webkit-overflow-scrolling: touch;  /* Smooth momentum scrolling on mobile */
+      width: 100%;
     }
 
     .match-table {
       width: 100%;
+      min-width: 900px;
       border-collapse: collapse;
       table-layout: fixed;
     }
@@ -865,6 +912,13 @@
     .col-team1 {
       text-align: right !important;
       padding-right: 16px !important;
+      min-width: 170px;
+    }
+
+    .col-team2 {
+      text-align: left !important;
+      padding-left: 16px !important;
+      min-width: 170px;
     }
 
     .col-s1,
@@ -881,11 +935,6 @@
       text-align: center !important;
       color: var(--muted);
       padding: 10px 0 !important;
-    }
-
-    .col-team2 {
-      text-align: left !important;
-      padding-left: 16px !important;
     }
 
     .col-status {
@@ -1019,6 +1068,11 @@
     .team-standing-badge.lower {
       background: var(--lb-bg);
       color: var(--lb-text);
+    }
+
+    .team-standing-badge.upper {
+      background: var(--pill-ub-bg);
+      color: var(--pill-ub-text);
     }
 
     .team-standing-badge.eliminated {
@@ -1172,12 +1226,38 @@
     }
 
     .journey-bracket-id {
-      font-weight: 700;
-      color: var(--text);
+      font-weight: 500;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
     }
 
-    .journey-opp {
+    .journey-vs-label {
+      font-size: 11px;
+      font-style: italic;
       color: var(--muted);
+      opacity: 0.7;
+      margin: 0 1px;
+    }
+
+    .journey-opp-name {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 11.5px;
+    }
+
+    .journey-bracket-id,
+    .journey-opp-name .placeholder-code {
+      font-family: inherit;
+      font-weight: 500;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    .journey-opp-name .placeholder-role {
+      font-weight: 400;
+      font-size: 11px;
     }
 
     .journey-result-pill {
@@ -1189,6 +1269,12 @@
       font-size: 10px;
       font-weight: 700;
       white-space: nowrap;
+    }
+
+    .journey-result-pill.upcoming {
+      background: var(--status-upcoming-bg);
+      color: var(--status-upcoming-text);
+      border: 1px solid var(--border);
     }
 
     .journey-result-pill.win {
@@ -1262,6 +1348,11 @@
     /* ============================================================
        INTERACTION POLISH: HOVER & DIMMING
        ============================================================ */
+    /* Rosters Tab: Softly dim logos of eliminated teams */
+    .team-card.eliminated .team-logo {
+      opacity: 0.60;
+    }
+
     /* Hover: Bring the logo to 100% opacity with a subtle 1.1x pop */
     .match-card:hover .team-logo,
     .mc-team-row:hover .team-logo,
@@ -1277,16 +1368,39 @@
       opacity: 1;
     }
 
-    /* Rosters Tab: Softly dim logos of eliminated teams */
-    .team-card.eliminated .team-logo {
-      opacity: 0.35;
-    }
-
     .flag-icon {
       font-size: 15px;
       line-height: 1;
       display: inline-block;
       vertical-align: -1px; /* Optical baseline alignment with text */
+    }
+
+    /* ============================================================
+       SYSTEM BRACKET PLACEHOLDERS
+       ============================================================ */
+    .placeholder-role {
+      font-style: italic;
+      font-size: 11.5px;
+      font-weight: 400;
+      opacity: 0.65;
+      margin-right: 3px;
+    }
+
+    .placeholder-code {
+      /* Matches the card header font & styling */
+      font-family: inherit;
+      font-weight: 500;
+      font-size: 11.5px;
+      letter-spacing: 0.02em;
+      color: inherit;
+    }
+
+    /* Mute only the "Winner" / "Loser" prefix per theme */
+    [data-theme="light"] .placeholder-role {
+      color: #64748b;
+    }
+    [data-theme="dark"] .placeholder-role {
+      color: #94a3b8;
     }
 
   </style>
@@ -1446,7 +1560,7 @@
        ============================================================ */
     const CONFIG = {
       csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD2Um71alwYDoejxYV15ud9NZLq8E0re8efnSUDkw5M-HN_ApEd9KOmVhuiwEm0bzPdmdQbeHw0NgC/pub?gid=0&single=true&output=csv",
-      refreshIntervalMs: 20000
+      refreshIntervalMs: 45000
     };
 
     const QUALIFIER_BRACKET_IDS = new Set(["R3_UB1", "R3_UB2", "R5_LB1", "R5_LB2"]);
@@ -1559,6 +1673,19 @@
         return `${m}-${d} ${hh}:${mm}`;
       }
       return str;
+    }
+
+    function formatPlaceholderHTML(name) {
+      if (!name) return '<span class="placeholder-muted">TBD</span>';
+      
+      const match = name.match(/^(W|L)\s+([A-Za-z0-9_]+)$/i);
+      if (match) {
+        const role = match[1].toUpperCase() === "W" ? "Winner" : "Loser";
+        const code = match[2];
+        return `<span class="placeholder-role">${role}</span> <span class="placeholder-code">${code}</span>`;
+      }
+      
+      return escapeHtml(name);
     }
 
     /* ============================================================
@@ -1874,13 +2001,14 @@
           m => m.team1.name === team.name || m.team2.name === team.name
         );
 
-        let badgeType = "lower";
-        let badgeText = "Lower Bracket";
-
-        // Check if qualified in R3_UB or R5_LB
+        // Check if qualified in Upper or Lower Qualifier
         const wonQual = teamMatches.some(
           m => m.isQualifier && m.winnerName === team.name
         );
+
+        let badgeType = "upper";
+        let badgeText = "Upper Bracket";
+
         if (wonQual) {
           badgeType = "qualified";
           badgeText = "Qualified (Top 4)";
@@ -1893,6 +2021,7 @@
               m.winnerName &&
               m.winnerName !== team.name
           );
+
           if (lostLower) {
             badgeType = "eliminated";
             if (lostLower.bracketId.startsWith("R2_LB")) {
@@ -1903,6 +2032,19 @@
               badgeText = "Eliminated • 7th–8th";
             } else {
               badgeText = "Eliminated • 5th–6th";
+            }
+          } else {
+            // Check if dropped to Lower Bracket (lost an Upper Bracket match)
+            const lostUpper = teamMatches.some(
+              m =>
+                m.isUpper &&
+                m.status === "completed" &&
+                m.winnerName &&
+                m.winnerName !== team.name
+            );
+            if (lostUpper) {
+              badgeType = "lower";
+              badgeText = "Lower Bracket";
             }
           }
         }
@@ -1953,9 +2095,15 @@
     function renderBracketCardHTML(match) {
       const t1Win = match.winnerName && match.winnerName === match.team1.name;
       const t2Win = match.winnerName && match.winnerName === match.team2.name;
+      
+      const t1HTML = formatPlaceholderHTML(match.team1.name);
+      const t2HTML = formatPlaceholderHTML(match.team2.name);
 
       const s1Disp = match.score1 !== "" ? match.score1 : "—";
       const s2Disp = match.score2 !== "" ? match.score2 : "—";
+
+      const seed1 = match.team1.seed ? `#${match.team1.seed}` : "—";
+      const seed2 = match.team2.seed ? `#${match.team2.seed}` : "—";
 
       let statusBadge = `<span class="mc-status-badge completed">✔ COMPLETED</span>`;
       if (match.status === "upcoming") {
@@ -1982,17 +2130,17 @@
           </div>
           <div class="mc-team-row slot-1 ${t1Win ? "winner" : ""}">
             <div class="mc-team-left">
-              <span class="seed-pill">#${match.team1.seed ?? "?"}</span>
+              <span class="seed-pill ${!match.team1.seed ? 'empty' : ''}">${seed1}</span>
               ${getTeamLogoHTML(match.team1)}
-              <span class="mc-team-name">${escapeHtml(match.team1.name)}</span>
+              <span class="mc-team-name">${t1HTML}</span>
             </div>
             <span class="mc-score">${escapeHtml(s1Disp)}</span>
           </div>
           <div class="mc-team-row slot-2 ${t2Win ? "winner" : ""}">
             <div class="mc-team-left">
-              <span class="seed-pill">#${match.team2.seed ?? "?"}</span>
+              <span class="seed-pill ${!match.team2.seed ? 'empty' : ''}">${seed2}</span>
               ${getTeamLogoHTML(match.team2)}
-              <span class="mc-team-name">${escapeHtml(match.team2.name)}</span>
+              <span class="mc-team-name">${t2HTML}</span>
             </div>
             <span class="mc-score">${escapeHtml(s2Disp)}</span>
           </div>
@@ -2319,13 +2467,29 @@
       });
 
       const tbody = document.getElementById("matchTableBody");
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" style="text-align: center; padding: 32px 16px; color: var(--muted); font-style: italic;">
+              No matches found matching the current filter.
+            </td>
+          </tr>
+        `;
+        return;
+      }
       tbody.innerHTML = filtered
         .map(m => {
           const t1Win = m.winnerName && m.winnerName === m.team1.name;
           const t2Win = m.winnerName && m.winnerName === m.team2.name;
 
+          const t1HTML = formatPlaceholderHTML(m.team1.name);
+          const t2HTML = formatPlaceholderHTML(m.team2.name);
+
           const s1Disp = m.score1 !== "" ? m.score1 : "—";
           const s2Disp = m.score2 !== "" ? m.score2 : "—";
+
+          const s1Badge = m.team1.seed ? `#${m.team1.seed}` : "—";
+          const s2Badge = m.team2.seed ? `#${m.team2.seed}` : "—";
 
           let pillClass = m.isUpper ? "upper" : "lower";
           let pillPrefix = "";
@@ -2350,9 +2514,9 @@
               <td class="col-sched">${escapeHtml(m.scheduled)}</td>
               <td class="col-team1">
                 <div class="table-team-wrap">
-                  <span class="seed-pill">#${m.team1.seed ?? "?"}</span>
+                  <span class="seed-pill ${!m.team1.seed ? 'empty' : ''}">${s1Badge}</span>
                   ${getTeamLogoHTML(m.team1)}
-                  <span class="table-team-name ${t1Win ? "winner" : ""}">${escapeHtml(m.team1.name)}</span>
+                  <span class="table-team-name ${t1Win ? "winner" : ""}">${t1HTML}</span>
                 </div>
               </td>
               <td class="col-s1 ${t1Win ? "win-score" : ""}">${escapeHtml(s1Disp)}</td>
@@ -2360,9 +2524,9 @@
               <td class="col-s2 ${t2Win ? "win-score" : ""}">${escapeHtml(s2Disp)}</td>
               <td class="col-team2">
                 <div class="table-team-wrap">
-                  <span class="seed-pill">#${m.team2.seed ?? "?"}</span>
+                  <span class="seed-pill ${!m.team2.seed ? 'empty' : ''}">${s2Badge}</span>
                   ${getTeamLogoHTML(m.team2)}
-                  <span class="table-team-name ${t2Win ? "winner" : ""}">${escapeHtml(m.team2.name)}</span>
+                  <span class="table-team-name ${t2Win ? "winner" : ""}">${t2HTML}</span>
                 </div>
               </td>
               <td class="col-status">${statusBadge}</td>
@@ -2397,7 +2561,7 @@
               : "None";
 
           return `
-            <div class="team-card ${st.badgeType === "qualified" ? "qualified" : ""}"
+            <div class="team-card ${escapeHtml(st.badgeType)}"
                  data-team-name="${escapeHtml(team.name)}">
               <div class="team-card-top">
                 <span class="seed-pill">#${team.seed}</span>
@@ -2476,22 +2640,35 @@
       const rowsHtml = journeyMatches
         .map(m => {
           const isTeam1 = m.team1.name === teamName;
-          const opp = isTeam1 ? m.team2.name : m.team1.name;
+          const oppObj = isTeam1 ? m.team2 : m.team1;
+          const oppName = oppObj ? oppObj.name : "TBD";
           const myScore = isTeam1 ? m.score1 : m.score2;
           const oppScore = isTeam1 ? m.score2 : m.score1;
+          const oppHTML = formatPlaceholderHTML(oppName);
 
-          const isWin = m.winnerName === teamName;
-          const hasScores = myScore !== "" && oppScore !== "";
-          const scoreLabel = hasScores ? `${myScore}-${oppScore}` : "---";
+          // Check if match has actually completed with a verified winner
+          const isDone = m.status === "completed" && Boolean(m.winnerName);
+
+          let pillClass = "upcoming";
+          let labelText = "UPCOMING";
+
+          if (isDone) {
+            const isWin = m.winnerName === teamName;
+            pillClass = isWin ? "win" : "loss";
+            const hasScores = myScore !== "" && oppScore !== "";
+            const scoreLabel = hasScores ? `(${myScore}-${oppScore})` : "";
+            labelText = `${isWin ? "WIN" : "LOSS"} ${scoreLabel}`.trim();
+          }
 
           return `
             <div class="journey-row">
               <div class="journey-left">
                 <span class="journey-bracket-id">${escapeHtml(m.bracketId)}</span>
-                <span class="journey-opp">vs ${escapeHtml(opp)}</span>
+                <span class="journey-vs-label">vs</span>
+                <span class="journey-opp-name">${oppHTML}</span>
               </div>
-              <span class="journey-result-pill ${isWin ? "win" : "loss"}">
-                ${isWin ? "WIN" : "LOSS"} (${escapeHtml(scoreLabel)})
+              <span class="journey-result-pill ${pillClass}">
+                ${escapeHtml(labelText)}
               </span>
             </div>
           `;
@@ -2541,51 +2718,143 @@
         .replace(/&/g, "&")
         .replace(/</g, "<")
         .replace(/>/g, ">")
-        .replace(/"/g, '"')
+        .replace(/"/g, '"') 
         .replace(/'/g, "'");
     }
     /* ============================================================
-       9. DATA FETCHING & INITIALIZATION
+       9. DATA FETCHING, CACHING & INITIALIZATION
        ============================================================ */
-    async function loadTournamentData() {
+    const STORAGE_KEYS = {
+      csvCache: "od_wildcard_csv_cache_v1",
+      theme: "od_wildcard_theme_v1"
+    };
+
+    let lastRawCsvText = "";
+    let pollTimerId = null;
+
+    function applyParsedData(csvText) {
+      const parsed = parseTournamentCSV(csvText);
+      lastRawCsvText = csvText;
+      STATE.data = parsed;
+
+      const { qualSlots, teamStatusMap } = computeTeamStatusAndStandings(parsed);
+      renderTopBanner(qualSlots);
+      renderBrackets(parsed);
+      renderMatchList(parsed);
+      renderRostersAndStandings(parsed, teamStatusMap);
+    }
+
+    function showFetchErrorBanner(isCachedFallback) {
+      let errEl = document.getElementById("dataErrorBanner");
+      if (!errEl) {
+        errEl = document.createElement("div");
+        errEl.id = "dataErrorBanner";
+        errEl.className = "data-error-banner";
+        const topBanner = document.getElementById("topQualBanner");
+        topBanner.parentNode.insertBefore(errEl, topBanner);
+      }
+
+      const msg = isCachedFallback
+        ? "⚠️ Live feed temporarily unreachable — showing last saved tournament data."
+        : "⚠️ Unable to load live tournament data right now. Retrying automatically…";
+
+      errEl.innerHTML = `
+        <span>${msg}</span>
+        <button type="button" class="data-error-retry" onclick="loadTournamentData(true)">Retry now</button>
+      `;
+    }
+
+    function clearFetchErrorBanner() {
+      const errEl = document.getElementById("dataErrorBanner");
+      if (errEl) errEl.remove();
+    }
+
+    async function loadTournamentData(force = false) {
       if (!CONFIG.csvUrl) {
         console.warn("Please set CONFIG.csvUrl.");
         return;
       }
 
+      // Skip background network fetch if tab is hidden (unless forced)
+      if (!force && document.hidden) return;
+
       try {
-        const timestamp = Date.now();
-        const endpoint = `${CONFIG.csvUrl}&_t=${timestamp}`;
-        
+        const endpoint = `${CONFIG.csvUrl}&_t=${Date.now()}`;
         const response = await fetch(endpoint, { cache: "no-store" });
         if (!response.ok) {
-          throw new Error(`Google Sheets responded with HTTP status ${response.status}`);
+          throw new Error(`HTTP ${response.status}`);
         }
 
         const csvText = await response.text();
-        const parsed = parseTournamentCSV(csvText);
-        STATE.data = parsed;
+        clearFetchErrorBanner();
 
-        const { qualSlots, teamStatusMap } = computeTeamStatusAndStandings(parsed);
-        renderTopBanner(qualSlots);
-        renderBrackets(parsed);
-        renderMatchList(parsed);
-        renderRostersAndStandings(parsed, teamStatusMap);
+        // Skip re-parsing and re-rendering if data is identical
+        if (csvText === lastRawCsvText) {
+          return;
+        }
 
+        applyParsedData(csvText);
+        try {
+          localStorage.setItem(STORAGE_KEYS.csvCache, csvText);
+        } catch (_) {
+          // Ignore storage quota errors in private browsing
+        }
       } catch (err) {
         console.error("Failed to load live tournament data:", err);
-        const banner = document.getElementById("topQualBanner");
-        if (banner) {
-          banner.innerHTML = `
-            <div style="padding: 12px; color: #ef4444; background: #fef0f0; border-radius: 8px; text-align: center; font-weight: 600;">
-              ⚠️ Could not refresh live tournament data. Please check your sheet permissions and internet connection.
-            </div>
-          `;
+
+        // If nothing is rendered yet, try restoring from localStorage before showing an error
+        if (!STATE.data) {
+          try {
+            const cachedCsv = localStorage.getItem(STORAGE_KEYS.csvCache);
+            if (cachedCsv) {
+              applyParsedData(cachedCsv);
+              showFetchErrorBanner(true);
+              return;
+            }
+          } catch (_) {}
+
+          showFetchErrorBanner(false);
         }
       }
     }
 
+    function applyTheme(theme) {
+      const html = document.documentElement;
+      const moonIcon = document.getElementById("themeIconMoon");
+      const sunIcon = document.getElementById("themeIconSun");
+
+      html.setAttribute("data-theme", theme);
+      if (moonIcon) moonIcon.style.display = theme === "dark" ? "none" : "block";
+      if (sunIcon) sunIcon.style.display = theme === "dark" ? "block" : "none";
+    }
+
+    function startPolling() {
+      stopPolling();
+      if (CONFIG.refreshIntervalMs > 0) {
+        pollTimerId = setInterval(() => loadTournamentData(false), CONFIG.refreshIntervalMs);
+      }
+    }
+
+    function stopPolling() {
+      if (pollTimerId !== null) {
+        clearInterval(pollTimerId);
+        pollTimerId = null;
+      }
+    }
+
     function setupUIEvents() {
+      // Restore saved theme or respect OS preference
+      let initialTheme = "light";
+      try {
+        const savedTheme = localStorage.getItem(STORAGE_KEYS.theme);
+        if (savedTheme === "dark" || savedTheme === "light") {
+          initialTheme = savedTheme;
+        } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          initialTheme = "dark";
+        }
+      } catch (_) {}
+      applyTheme(initialTheme);
+
       // Tab switching
       const tabBtns = document.querySelectorAll(".tab-btn");
       const topBanner = document.getElementById("topQualBanner");
@@ -2605,7 +2874,6 @@
             pane.classList.toggle("active", pane.id === `tab-${target}`);
           });
 
-          // Top Banner visible on Tab A (bracket) and Tab C (rosters), hidden on Tab B (matches)
           if (target === "matches") {
             topBanner.classList.add("hidden");
           } else {
@@ -2621,15 +2889,13 @@
 
       // Theme toggle
       const themeBtn = document.getElementById("themeToggleBtn");
-      const moonIcon = document.getElementById("themeIconMoon");
-      const sunIcon = document.getElementById("themeIconSun");
-
       themeBtn.addEventListener("click", () => {
-        const html = document.documentElement;
-        const nextTheme = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
-        html.setAttribute("data-theme", nextTheme);
-        moonIcon.style.display = nextTheme === "dark" ? "none" : "block";
-        sunIcon.style.display = nextTheme === "dark" ? "block" : "none";
+        const current = document.documentElement.getAttribute("data-theme");
+        const nextTheme = current === "dark" ? "light" : "dark";
+        applyTheme(nextTheme);
+        try {
+          localStorage.setItem(STORAGE_KEYS.theme, nextTheme);
+        } catch (_) {}
         requestAnimationFrame(() => drawAllBracketConnectors());
       });
 
@@ -2651,6 +2917,16 @@
         if (STATE.data) renderMatchList(STATE.data);
       });
 
+      // Pause polling when tab is hidden; refresh immediately upon return
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          stopPolling();
+        } else {
+          loadTournamentData(true);
+          startPolling();
+        }
+      });
+
       // Redraw seam connectors on resize
       window.addEventListener("resize", () => {
         if (STATE.activeTab === "bracket") {
@@ -2661,9 +2937,14 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       setupUIEvents();
-      loadTournamentData();
-      if (CONFIG.refreshIntervalMs > 0) {
-        setInterval(loadTournamentData, CONFIG.refreshIntervalMs);
+      loadTournamentData(true);
+      startPolling();
+    });
+
+    // Close floating popovers when tapping outside cards on touch devices
+    document.addEventListener("click", e => {
+      if (!e.target.closest(".match-card") && !e.target.closest(".team-card")) {
+        hidePopover();
       }
     });
   </script>
